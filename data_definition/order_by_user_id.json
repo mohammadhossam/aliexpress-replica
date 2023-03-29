@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "title": "Card by customer id",
+  "properties": {
+    "order_id": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "product_id": {
+              "type": "string"
+            },
+            "quantity": {
+              "type": "number"
+            },
+            "price": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "product_id",
+            "quantity",
+            "price"
+          ]
+        },
+      ]
+    },
+    "total_price": {
+      "type": "number"
+    },
+    "date": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "customer_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "order_id",
+    "items",
+    "total_price",
+    "date",
+    "status",
+    "customer_id"
+  ]
+}

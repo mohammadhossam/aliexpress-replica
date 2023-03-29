@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "title": "Card by customer id",
+  "properties": {
+    "card_id": {
+      "type": "string"
+    },
+    "card_holder_name": {
+      "type": "string"
+    },
+    "expiry_month": {
+      "type": "integer"
+    },
+    "expiry_year": {
+      "type": "integer"
+    },
+    "customer_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "card_id",
+    "card_holder_name",
+    "expiry_month",
+    "expiry_year",
+    "customer_id"
+  ]
+}
