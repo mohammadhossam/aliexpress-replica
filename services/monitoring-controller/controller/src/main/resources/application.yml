@@ -1,0 +1,10 @@
+netty:
+  server:
+    port: 5555
+    host: localhost
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

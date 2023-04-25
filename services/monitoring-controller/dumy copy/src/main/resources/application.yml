@@ -1,0 +1,15 @@
+server:
+    port: 3001
+
+netty:
+    server:
+        port: 5555
+        host: localhost
+
+    collector-period: 5000
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: "*"
