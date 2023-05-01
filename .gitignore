@@ -70,3 +70,4 @@ build/
 
 inventory-service/src/main/resources/application.properties
 
+/orders_app/src/main/resources/application.properties
