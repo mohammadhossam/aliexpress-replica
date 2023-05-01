@@ -1,0 +1,8 @@
+#application.properties file contains the database configuration details as shown below.
+#spring.datasource.url=jdbc:mysql://localhost:3306/yourdb
+#spring.datasource.username=yourusername
+#spring.datasource.password=yourpassword
+#spring.jpa.hibernate.ddl-auto=update
+/users-service/src/main/resources/application.properties
+/.idea/
+/users-service/target/
