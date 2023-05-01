@@ -21,7 +21,7 @@ class MongodbDemoApplicationTests {
        List<Item> items= new ArrayList<>();
        items.add(new Item(UUID.randomUUID(),2,40));
        items.add(new Item(UUID.randomUUID(),1,160.15 ));
-        repo.save(new Order(UUID.randomUUID(),UUID.randomUUID(),"created",200.15,new Date(),items));
+        repo.save(new Order(UUID.randomUUID(),"created",200.15,items));
    }
 
 }

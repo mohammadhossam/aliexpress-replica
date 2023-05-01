@@ -13,23 +13,23 @@ import java.util.UUID;
 @Getter
 @Setter
 @Document("orders")
-@Sharded(shardKey = { "userId" })
+@Sharded(shardKey = { "user_id" })
 public class Order {
     @Id
     private UUID id;
-    private UUID userI_id;
+    private UUID user_id;
     private String status;
     private double total_price;
     private Date date;
     private List<Item> items;
 
-    public Order(UUID id, UUID userI_id, String status, double total_price,  Date date,  List<Item> items) {
+    public Order(UUID user_id, String status, double total_price, List<Item> items) {
         super();
-        this.id = id;
-        this.userI_id = userI_id;
+        this.id = UUID.randomUUID();
+        this.user_id = user_id;
         this.status = status;
         this.total_price = total_price;
-        this.date = date;
+        this.date = new Date();
         this.items = items;
     }
 }

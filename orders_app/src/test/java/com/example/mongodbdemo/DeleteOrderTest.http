@@ -1,0 +1,3 @@
+DELETE http://localhost:8080/orders/897a6fec-a8bf-4d3e-9537-3dc6e5a15ea5 HTTP/1.1
+content-type: application/json
+
