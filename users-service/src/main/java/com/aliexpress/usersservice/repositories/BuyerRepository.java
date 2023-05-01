@@ -17,6 +17,6 @@ public interface BuyerRepository extends JpaRepository<Buyer, Long> {
                           @Param("email") String email,
                           @Param("phone_number") String phone,
                           @Param("birthdate") Date birthdate,
-                          @Param("address")String address,
+                          @Param("address") String address,
                           @Param("hashed_password") String hashedPassword);
 }
