@@ -1,4 +1,4 @@
-HELP.md
+orders_app/HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -31,3 +31,4 @@ build/
 
 ### VS Code ###
 .vscode/
+!/orders_app/src/main/resources/application.properties

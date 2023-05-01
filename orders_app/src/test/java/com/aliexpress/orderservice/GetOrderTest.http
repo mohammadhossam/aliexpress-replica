@@ -1,3 +1,0 @@
-GET http://localhost:8080/api/orders/de6a2980-9246-4836-95c9-0136885622b0 HTTP/1.1
-content-type: application/json
-
