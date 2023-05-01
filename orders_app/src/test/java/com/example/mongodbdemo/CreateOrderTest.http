@@ -1,0 +1,10 @@
+POST http://localhost:8080/orders HTTP/1.1
+content-type: application/json
+
+{
+  "user_id":"9197a3e7-de9c-47fb-aacb-fac527646cc2",
+  "status":"created",
+  "total_price":3000,
+  "items": [{"id":"7bd1867f-8341-4852-ae6a-536ca83e83b6","quantity":2,"price":500},{"id":"bc9013c2-9245-4de6-8036-8a25600e1c36","quantity":1,"price":2000}]
+}
+
