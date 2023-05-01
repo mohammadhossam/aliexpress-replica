@@ -16,14 +16,6 @@ public class BuyerService {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerBuyer(@RequestBody BuyerRegistrationRequest registrationRequest) {
-//        System.out.println(registrationRequest.getFirstName());
-//        System.out.println(registrationRequest.getLastName());
-//        System.out.println(registrationRequest.getEmail());
-//        System.out.println(registrationRequest.getPhone());
-//        System.out.println(registrationRequest.getBirthdate());
-//        System.out.println(registrationRequest.getAddress());
-//        System.out.println(registrationRequest.getHashedPassword());
-
         Boolean success = buyerRepository.registerBuyer(
                 registrationRequest.getFirstName(),
                 registrationRequest.getLastName(),
