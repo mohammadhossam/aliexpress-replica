@@ -1,4 +1,4 @@
-package com.example.mongodbdemo.dtos;
+package com.aliexpress.paymentservice.dto;
 
 public class PaymentRequest {
     private String customerId;
