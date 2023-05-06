@@ -1,46 +1,46 @@
-CREATE OR REPLACE PROCEDURE authenticate_buyer(IN email varchar(100), IN hashed_password varchar(60),
-                                               OUT result boolean, OUT buyer_id integer)
-AS
-$$
-BEGIN
-    SELECT id, password = hashed_password
-    INTO buyer_id, result
-    FROM Buyer
-             JOIN BuyerPassword ON Buyer.id = BuyerPassword.id
-    WHERE Buyer.email = authenticate_buyer.email;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE PROCEDURE authenticate_merchant(IN email varchar(100), IN hashed_password varchar(60),
-                                                  OUT result boolean, OUT merchant_id integer)
-AS
-$$
-BEGIN
-    SELECT id, password = hashed_password
-    INTO merchant_id, result
-    FROM Merchant
-             JOIN BuyerPassword ON Merchant.id = BuyerPassword.id
-    WHERE Merchant.email = authenticate_merchant.email;
-END;
-$$ LANGUAGE plpgsql;
+-- CREATE OR REPLACE PROCEDURE authenticate_buyer(IN email varchar(100), IN hashed_password varchar(60),
+--                                                OUT result boolean, OUT buyer_id integer)
+-- AS
+-- $$
+-- BEGIN
+--     SELECT id, password = hashed_password
+--     INTO buyer_id, result
+--     FROM Buyer
+--              JOIN BuyerPassword ON Buyer.id = BuyerPassword.id
+--     WHERE Buyer.email = authenticate_buyer.email;
+-- END;
+-- $$ LANGUAGE plpgsql;
+--
+-- CREATE OR REPLACE PROCEDURE authenticate_merchant(IN email varchar(100), IN hashed_password varchar(60),
+--                                                   OUT result boolean, OUT merchant_id integer)
+-- AS
+-- $$
+-- BEGIN
+--     SELECT id, password = hashed_password
+--     INTO merchant_id, result
+--     FROM Merchant
+--              JOIN BuyerPassword ON Merchant.id = BuyerPassword.id
+--     WHERE Merchant.email = authenticate_merchant.email;
+-- END;
+-- $$ LANGUAGE plpgsql;
 
 -- Procedure for registering a new buyer
 CREATE OR REPLACE PROCEDURE register_buyer(IN first_name varchar(50), IN last_name varchar(50), IN email varchar(100),
                                            IN phone_number varchar(20), IN birthdate date, IN address varchar(200),
-                                           IN hashed_password varchar(60), OUT result boolean)
+                                           IN password varchar(250), IN role varchar(100), OUT result boolean)
 AS
 $$
 DECLARE
     new_id integer;
 BEGIN
     -- Insert the new buyer into the Buyer table
-    INSERT INTO Buyer(first_name, last_name, email, phone_number, birthdate, address)
-    VALUES (first_name, last_name, email, phone_number, birthdate, address)
-    RETURNING id INTO new_id;
-
-    -- Insert the new buyer's password into the BuyerPassword table
-    INSERT INTO BuyerPassword(id, password)
-    VALUES (new_id, hashed_password);
+    INSERT INTO Buyer(first_name, last_name, email, password, phone_number, birthdate, address, role)
+    VALUES (first_name, last_name, email, password, phone_number, birthdate, address, role);
+--     RETURNING id INTO new_id;
+--
+--     -- Insert the new buyer's password into the BuyerPassword table
+--     INSERT INTO BuyerPassword(id, password)
+--     VALUES (new_id, hashed_password);
 
     -- Set the result to true to indicate success
     result := true;
@@ -57,20 +57,20 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE PROCEDURE register_merchant(IN first_name varchar(50), IN last_name varchar(50),
                                               IN email varchar(100), IN tax_number varchar(20),
                                               IN phone_number varchar(20), IN birthdate date, IN address varchar(200),
-                                              IN hashed_password varchar(60), OUT result boolean)
+                                              IN password varchar(60), OUT result boolean)
 AS
 $$
 DECLARE
     new_id integer;
 BEGIN
     -- Insert the new buyer into the Merchant table
-    INSERT INTO Merchant(first_name, last_name, email, tax_number, phone_number, birthdate, address)
-    VALUES (first_name, last_name, email, tax_number, phone_number, birthdate, address)
-    RETURNING id INTO new_id;
-
-    -- Insert the new merchant's password into the MerchantPassword table
-    INSERT INTO merchantpassword(id, password)
-    VALUES (new_id, hashed_password);
+    INSERT INTO Merchant(first_name, last_name, email, password, tax_number, phone_number, birthdate, address)
+    VALUES (first_name, last_name, email, password, tax_number, phone_number, birthdate, address);
+--     RETURNING id INTO new_id;
+--
+--     -- Insert the new merchant's password into the MerchantPassword table
+--     INSERT INTO merchantpassword(id, password)
+--     VALUES (new_id, hashed_password);
 
     -- Set the result to true to indicate success
     result := true;
