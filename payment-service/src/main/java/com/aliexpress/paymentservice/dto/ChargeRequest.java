@@ -3,17 +3,14 @@ package com.aliexpress.paymentservice.dto;
 import lombok.*;
 
 @Data
-@Setter
 @Getter
-@NoArgsConstructor
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class ChargeRequest {
-
     public enum Currency {
         USD;
     }
+    private String customerId;
     private double amount;
-    private Currency currency;
-    private String stripeEmail;
-    private String stripeToken;
 }
