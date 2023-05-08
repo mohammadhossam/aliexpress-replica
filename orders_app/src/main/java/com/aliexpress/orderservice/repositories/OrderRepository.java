@@ -7,8 +7,8 @@ import org.springframework.data.mongodb.repository.Query;
 import java.util.List;
 import java.util.UUID;
 
-public interface OrderRepository extends MongoRepository<Order, UUID> {
+public interface OrderRepository extends MongoRepository<Order, String> {
     @Query("{'user_id':?0}")
-    List<Order> findOrdersByUser_id(UUID user_id);
+    List<Order> findOrdersByUser_id(String user_id);
 
 }

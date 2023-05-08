@@ -1,5 +1,6 @@
 package com.aliexpress.orderservice.controllers;
 
+import com.aliexpress.orderservice.dto.OrderRequest;
 import com.aliexpress.orderservice.models.*;
 import com.aliexpress.orderservice.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,27 +21,27 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public Order getOrder(@PathVariable UUID id) {
+    public Order getOrder(@PathVariable String id) {
         return order_service.getOrder(id);
     }
 
     @GetMapping("/user_orders/{user_id}")
-    public List<Order> getUserOrders(@PathVariable UUID user_id) {
+    public List<Order> getUserOrders(@PathVariable String user_id) {
         return order_service.getUserOrders(user_id);
     }
 
     @PostMapping
-    public void createOrder(@RequestBody Order order) {
+    public void createOrder(@RequestBody OrderRequest order) {
         order_service.createOrder(order);
     }
 
     @PutMapping("/{id}")
-    public void updateOrder(@PathVariable UUID id, @RequestBody Order order) {
+    public void updateOrder(@PathVariable String id, @RequestBody OrderRequest order) {
         order_service.updateOrder(id, order);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteOrder(@PathVariable UUID id) {
+    public void deleteOrder(@PathVariable String id) {
         order_service.deleteOrder(id);
     }
 
