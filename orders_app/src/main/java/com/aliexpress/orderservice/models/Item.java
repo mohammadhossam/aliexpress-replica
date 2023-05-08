@@ -1,29 +1,16 @@
 package com.aliexpress.orderservice.models;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.UUID;
 
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class Item {
-
-    private UUID id;
+    private String id;
     private int quantity;
     private double price;
-
-    public Item(
-            final UUID id,
-            final int quantity,
-            final double price
-            )
-
-    {
-        this.id = id;
-        this.quantity = quantity;
-        this.price = price;
-    }
 }

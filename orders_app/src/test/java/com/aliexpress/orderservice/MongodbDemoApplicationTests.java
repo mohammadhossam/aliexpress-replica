@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @SpringBootTest
 class MongodbDemoApplicationTests {
@@ -17,10 +17,16 @@ class MongodbDemoApplicationTests {
     OrderRepository repo;
    @Test
     void createOrder(){
+       Order order= new Order();
+       order.setUser_id("dummy");
+       order.setStatus("created");
+       order.setTotal_price(200.15);
+       order.setDate(new Date());
        List<Item> items= new ArrayList<>();
-       items.add(new Item(UUID.randomUUID(),2,40));
-       items.add(new Item(UUID.randomUUID(),1,160.15 ));
-        repo.save(new Order(UUID.randomUUID(),"created",200.15,items));
+       items.add(new Item("dummy",2,40));
+       items.add(new Item("dummy",1,160.15 ));
+       order.setItems(items);
+        repo.save(order);
    }
 
 }
