@@ -1,11 +1,11 @@
-package com.example.mongodbdemo;
+package com.aliexpress.orderservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @SpringBootApplication
-@EnableMongoRepositories(basePackages = {"com.example.mongodbdemo.repositories"})
+@EnableMongoRepositories(basePackages = {"com.aliexpress.orderservice.repositories"})
 public class MongodbDemoApplication {
 
     public static void main(String[] args) {
