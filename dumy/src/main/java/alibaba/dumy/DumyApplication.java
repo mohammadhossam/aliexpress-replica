@@ -18,6 +18,7 @@ public class DumyApplication {
 	public static void main(String[] args) {
 		ApplicationContext context = SpringApplication.run(DumyApplication.class, args);
 		System.out.println("Application running on port: " + context.getEnvironment().getProperty("server.port"));
+		System.out.println("Hello world");
 
 	}
 //
