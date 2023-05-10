@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/buyer")
+@RequestMapping("/api/authentication/buyer")
 @RequiredArgsConstructor
 public class BuyerController {
 
