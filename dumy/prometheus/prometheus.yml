@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'my-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['hamada:8080']
+        labels:
+          application: 'my-service'
+

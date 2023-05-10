@@ -17,6 +17,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>discoveryserver</module>
+        <module>dummyservice</module>
+        <module>dummy</module>
     </modules>
 
     <properties>

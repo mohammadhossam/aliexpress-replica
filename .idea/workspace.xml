@@ -51,7 +51,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "jdk.selected.JAVA_MODULE": "19",
-    "last_opened_file_path": "/Users/mohammedshetaya/Documents/uni/10th/scalable/aliexpress-replica/discoveryserver/src/main/resources",
+    "last_opened_file_path": "/Users/mohammedshetaya/Documents/uni/10th/scalable/aliexpress-replica",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -66,7 +66,14 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/discoveryserver/src/main/resources" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/dummy/src/main/resources" />
+      <recent name="$PROJECT_DIR$/dummy/src/main/java/com" />
+      <recent name="$PROJECT_DIR$/dummyservice" />
+      <recent name="$PROJECT_DIR$/dummyservice/src/main/resources" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/dummy/src/main/java/com/msa" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.msa" />
@@ -101,7 +108,7 @@
       <option name="presentableId" value="Default" />
       <updated>1683696140205</updated>
       <workItem from="1683696141510" duration="2887000" />
-      <workItem from="1683705054287" duration="1796000" />
+      <workItem from="1683705054287" duration="6720000" />
     </task>
     <servers />
   </component>
