@@ -1,13 +1,13 @@
 package com.aliexpress.usersservice.services;
 
 import com.aliexpress.usersservice.configs.JwtService;
-import com.aliexpress.usersservice.dto.BuyerAuthenticationRequest;
-import com.aliexpress.usersservice.dto.BuyerAuthenticationResponse;
-import com.aliexpress.usersservice.dto.BuyerRegistrationRequest;
+import com.aliexpress.usersservice.dto.*;
 import com.aliexpress.usersservice.models.Buyer;
 import com.aliexpress.usersservice.models.Role;
 import com.aliexpress.usersservice.repositories.BuyerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
@@ -22,6 +22,8 @@ public class BuyerAuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
 
     public BuyerAuthenticationResponse registerBuyer(BuyerRegistrationRequest registrationRequest) {
@@ -44,7 +46,13 @@ public class BuyerAuthenticationService {
                 buyer.getAddress(),
                 buyer.getPassword(),
                 buyer.getRole().name());
+        if (!success) throw new RuntimeException("Failed to register buyer");
         var jwtToken = jwtService.generateToken(buyer);
+
+        String email = buyer.getEmail();
+        String tokenKey = "buyer_token:" + email;
+        redisTemplate.opsForValue().set(tokenKey, jwtToken);
+
         return BuyerAuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
@@ -60,8 +68,23 @@ public class BuyerAuthenticationService {
         var buyer = repository.findBuyerByEmail(buyerAuthenticationRequest.getEmail())
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(buyer);
+
+        String email = buyer.getEmail();
+        String tokenKey = "buyer_token:" + email;
+        redisTemplate.opsForValue().set(tokenKey, jwtToken);
+
         return BuyerAuthenticationResponse.builder()
                 .token(jwtToken)
+                .build();
+    }
+
+    public BuyerLogoutResponse logoutBuyer(String authorizationHeader) {
+        String token = authorizationHeader.substring(7);
+        String email = jwtService.extractUsername(token);
+        String tokenKey = "buyer_token:" + email;
+        boolean success = redisTemplate.delete(tokenKey);
+        return BuyerLogoutResponse.builder()
+                .message(success ? "Logout success" : "User doesn't exist or not logged in")
                 .build();
     }
 }

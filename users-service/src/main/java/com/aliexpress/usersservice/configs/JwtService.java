@@ -5,6 +5,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,9 @@ import java.util.function.Function;
 public class JwtService {
 
     private static final String SECRET_KEY = "404D635166546A576E5A7234753778214125442A472D4B6150645267556B5870";
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -50,7 +55,12 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        return tokenExistsInCache(token, username) && username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+    private boolean tokenExistsInCache(String token, String userEmail) {
+        String key = "buyer_token:" + userEmail;
+        return redisTemplate.hasKey(key) && redisTemplate.opsForValue().get(key).equals(token);
     }
 
     private boolean isTokenExpired(String token) {

@@ -24,6 +24,8 @@ public class SecurityConfiguration {
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
+                .requestMatchers("api/buyer/logout")
+                .authenticated()
                 .requestMatchers("/api/buyer/**")
                 .permitAll()
                 .anyRequest()
