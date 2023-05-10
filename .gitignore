@@ -31,7 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
-!/orders_app/src/main/resources/application.properties
 
 ### app.properties ###
 ./payment-service/src/main/resources/application.properties
