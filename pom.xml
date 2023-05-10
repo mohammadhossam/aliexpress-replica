@@ -22,6 +22,7 @@
         <module>inventory-service</module>
         <module>orders_app</module>
         <module>payment-service</module>
+        <module>product-service</module>
     </modules>
 
     <properties>
