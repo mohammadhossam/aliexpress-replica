@@ -1,10 +1,8 @@
 package com.aliexpress.usersservice.controllers;
 
-import com.aliexpress.usersservice.dto.BuyerAuthenticationRequest;
+import com.aliexpress.usersservice.dto.*;
 import com.aliexpress.usersservice.models.Buyer;
-import com.aliexpress.usersservice.dto.BuyerRegistrationRequest;
 import com.aliexpress.usersservice.repositories.BuyerRepository;
-import com.aliexpress.usersservice.dto.BuyerAuthenticationResponse;
 import com.aliexpress.usersservice.services.BuyerAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +29,11 @@ public class BuyerController {
     @PostMapping("/authenticate")
     public ResponseEntity<BuyerAuthenticationResponse> authenticateBuyer(@RequestBody BuyerAuthenticationRequest buyerAuthenticationRequest) {
         return ResponseEntity.ok(buyerAuthenticationService.authenticateBuyer(buyerAuthenticationRequest));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<BuyerLogoutResponse> logoutBuyer(@RequestHeader("Authorization") String authorizationHeader) {
+        return ResponseEntity.ok(buyerAuthenticationService.logoutBuyer(authorizationHeader));
     }
 
     @GetMapping("/find/{email}")

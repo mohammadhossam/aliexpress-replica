@@ -8,7 +8,9 @@ create table Buyer(
     email        varchar(100) unique not null,
     phone_number varchar(20) unique  not null,
     birthdate    date                not null,
-    address      varchar(200)        not null
+    address      varchar(200)        not null,
+    password     varchar(250)        not null,
+    role         varchar(100)        not null
 );
 
 CREATE TABLE Merchant
@@ -20,27 +22,11 @@ CREATE TABLE Merchant
     tax_number   varchar(20) unique  not null,
     phone_number varchar(20) unique  not null,
     birthdate    date                not null,
-    address      varchar(200)        not null
+    address      varchar(200)        not null,
+    password     varchar(250)        not null,
+    role         varchar(100)        not null
 );
 
-
-CREATE TABLE BuyerPassword
-(
-    id       INTEGER PRIMARY KEY,
-    password VARCHAR(60) NOT NULL,
-    CONSTRAINT fk_user
-        FOREIGN KEY (id)
-            REFERENCES Buyer (id)
-);
-
-CREATE TABLE MerchantPassword
-(
-    id       INTEGER PRIMARY KEY,
-    password VARCHAR(60) NOT NULL,
-    CONSTRAINT fk_user
-        FOREIGN KEY (id)
-            REFERENCES Merchant (id)
-);
 
 CREATE TABLE Product
 (
