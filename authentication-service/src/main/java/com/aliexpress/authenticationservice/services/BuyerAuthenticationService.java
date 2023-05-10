@@ -67,10 +67,17 @@ public class BuyerAuthenticationService {
         );
         var buyer = repository.findBuyerByEmail(buyerAuthenticationRequest.getEmail())
                 .orElseThrow();
-        var jwtToken = jwtService.generateToken(buyer);
-
         String email = buyer.getEmail();
         String tokenKey = "buyer_token:" + email;
+
+        if (redisTemplate.hasKey(tokenKey)) {
+            String jwtToken = redisTemplate.opsForValue().get(tokenKey);
+            return BuyerAuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .build();
+        }
+
+        var jwtToken = jwtService.generateToken(buyer);
         redisTemplate.opsForValue().set(tokenKey, jwtToken);
 
         return BuyerAuthenticationResponse.builder()
