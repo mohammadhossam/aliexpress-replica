@@ -56,4 +56,14 @@ public class ProductController {
         // TODO: upload to s3
         return "https://google.com";
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ProductResponse> deleteProduct(@PathVariable String id) {
+        ProductResponse productResponse = productService.deleteProduct(id);
+
+        if (productResponse != null)
+            return ResponseEntity.ok(productResponse);
+
+        return ResponseEntity.notFound().build();
+    }
 }
