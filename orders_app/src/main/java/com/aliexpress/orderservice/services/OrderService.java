@@ -75,9 +75,9 @@ public class OrderService {
     }
     private ItemDTO mapItemToItemDTO(Item item) {
         ItemDTO itemDto = new ItemDTO();
-        item.setId(item.getId());
-        item.setPrice(item.getPrice());
-        item.setQuantity(item.getQuantity());
+        itemDto.setId(item.getId());
+        itemDto.setPrice(item.getPrice());
+        itemDto.setQuantity(item.getQuantity());
         return itemDto;
     }
     public OrderResponse mapToOrderResponse(Order order){

@@ -1,15 +1,11 @@
 package com.aliexpress.inventoryservice.services;
-;
+
 import com.aliexpress.inventoryservice.dto.InventoryRequest;
-import com.aliexpress.inventoryservice.dto.OrderRequest;
+import com.aliexpress.inventoryservice.dto.ItemDTO;
 import com.aliexpress.inventoryservice.dto.OrderResponse;
 import com.aliexpress.inventoryservice.models.Inventory;
 import com.aliexpress.inventoryservice.repositories.InventoryRepository;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -19,10 +15,9 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -37,8 +32,7 @@ public class InventoryService {
     private String jsonRoutingKey;
     @Autowired
     private RabbitTemplate rabbitTemplate;
-    private static final Logger logger= LoggerFactory.getLogger(InventoryService.class);
-
+    private static final Logger logger = LoggerFactory.getLogger(InventoryService.class);
 
 
     @SneakyThrows
@@ -47,6 +41,7 @@ public class InventoryService {
         inventoryRepository.createInventory(request.getId(), request.getQuantity());
         return inventoryRepository.findById(request.getId()).get();
     }
+
     @SneakyThrows
     public int getProductData(String id) {
         log.info("Get Inventory");
@@ -72,6 +67,7 @@ public class InventoryService {
         inventoryRepository.decrementStock(id, request.getQuantity());
         return inventoryRepository.findById(id).get();
     }
+
     @SneakyThrows
     public Inventory incrementStock(String id, InventoryRequest request) {
         log.info("Increment stock");
@@ -79,32 +75,42 @@ public class InventoryService {
         return inventoryRepository.findById(id).get();
     }
 
-    public void decrementProducts(String[] ids, int[] amount)
-    {
+    public void decrementProducts(String[] ids, int[] amount) {
         log.info("decrement products");
         log.info(ids.toString());
         inventoryRepository.decrementProducts(ids, amount);
     }
-    public void incrementProducts(String[] ids, int[] amount)
-    {
+
+    public void incrementProducts(String[] ids, int[] amount) {
         log.info("increment products");
         log.info(ids.toString());
         inventoryRepository.incrementProducts(ids, amount);
     }
 
+    public String[] mapItemsDTOToIDs(List<ItemDTO> itemsDTO) {
+        return Arrays.stream(itemsDTO.stream().map(item -> item.getId()).toArray())
+                .map(Object::toString)
+                .toArray(String[]::new);
+
+    }
+
+    public int[] mapItemsDTOToAmounts(List<ItemDTO> itemsDTO) {
+        return itemsDTO.stream().mapToInt(item -> item.getQuantity()).toArray();
+    }
+
     @RabbitListener(queues = {"${rabbitmq.jsonQueueOrdersToInv.name}"})
     public void consume(OrderResponse orderResponse) throws JsonProcessingException {
-//        ObjectMapper objectMapper = new ObjectMapper();
         logger.info(String.format("Received Json message => %s", orderResponse.toString()));
-
-
+        decrementProducts(mapItemsDTOToIDs(orderResponse.getItems()),
+                mapItemsDTOToAmounts(orderResponse.getItems()));
         /* todo
-        * go to DB and do the checks and the looping
-        * in case of problem - undo changes + trigger order service
-        * in case all is good - send order to payment thru MQ
-        * do we need to handle user auth???
-        * */
+         * handle exceptions
+         * in case of problem - undo changes + trigger order service
+         * in case all is good - send order to payment thru MQ
+         * do we need to handle user auth???
+         * */
     }
+
     public void sendJsonMessage(OrderResponse order) {
         logger.info(String.format("Sent JSON message => %s", order.toString()));
         rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, order);
