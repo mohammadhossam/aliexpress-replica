@@ -2,6 +2,7 @@ package com.msa.service;
 
 import com.msa.dto.CreateProductRequest;
 import com.msa.dto.ProductResponse;
+import com.msa.dto.UpdateProductRequest;
 import com.msa.model.Product;
 import com.msa.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -51,5 +52,28 @@ public class ProductService {
                 .categoryName(product.getCategoryName())
                 .isShippedForFree(product.isShippedForFree())
                 .build();
+    }
+
+    public ProductResponse getProduct(String id) {
+        return productRepository.findById(id)
+                .map(this::mapFromProductToProductResponse)
+                .orElse(null);
+    }
+
+    public ProductResponse updateProduct(String id, UpdateProductRequest updateProductRequest) {
+        return productRepository.findById(id)
+                .map(product -> {
+                    product.setName(updateProductRequest.getName());
+                    product.setDescription(updateProductRequest.getDescription());
+                    product.setPrice(updateProductRequest.getPrice());
+                    product.setImgSrc(updateProductRequest.getImgSrc());
+                    product.setMerchantId(updateProductRequest.getMerchantId());
+                    product.setCategoryName(updateProductRequest.getCategoryName());
+                    product.setShippedForFree(updateProductRequest.isShippedForFree());
+
+                    Product updatedProduct = productRepository.save(product);
+                    return mapFromProductToProductResponse(updatedProduct);
+                })
+                .orElse(null);
     }
 }
