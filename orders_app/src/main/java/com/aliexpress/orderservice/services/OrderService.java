@@ -6,7 +6,12 @@ import com.aliexpress.orderservice.models.Item;
 import com.aliexpress.orderservice.models.Order;
 import com.aliexpress.orderservice.repositories.OrderRepository;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +21,12 @@ import java.util.UUID;
 public class OrderService {
     @Autowired
     private OrderRepository repo;
+    @Value("${rabbitmq.exchange.name}")
+    private String exchangeName;
+    @Value("${rabbitmq.jsonBinding.routingKey}")
+    private String jsonRoutingKey;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     public List<Order> getAllOrders() {
         return repo.findAll();
@@ -60,6 +71,12 @@ public class OrderService {
         item.setPrice(itemDto.getPrice());
         item.setQuantity(itemDto.getQuantity());
         return item;
+    }
+
+    private static final Logger logger= LoggerFactory.getLogger(OrderService.class);
+    public void sendJsonMessage(OrderRequest order) {
+        logger.info(String.format("Sent JSON message => %s", order.toString()));
+        rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, order);
     }
 
 }

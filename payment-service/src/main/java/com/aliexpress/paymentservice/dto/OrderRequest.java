@@ -1,6 +1,5 @@
-package com.aliexpress.orderservice.dto;
+package com.aliexpress.paymentservice.dto;
 
-import com.aliexpress.orderservice.models.Item;
 import lombok.*;
 
 import java.util.Date;

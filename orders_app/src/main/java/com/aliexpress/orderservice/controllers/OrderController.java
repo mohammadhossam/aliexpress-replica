@@ -4,6 +4,7 @@ import com.aliexpress.orderservice.dto.OrderRequest;
 import com.aliexpress.orderservice.models.*;
 import com.aliexpress.orderservice.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,6 +44,12 @@ public class OrderController {
     @DeleteMapping("/{id}")
     public void deleteOrder(@PathVariable String id) {
         order_service.deleteOrder(id);
+    }
+
+    @PostMapping("/publish")
+    public ResponseEntity<String> sendMessage(@RequestBody OrderRequest order){
+        order_service.sendJsonMessage(order);
+        return ResponseEntity.ok("Message sent successfully...");
     }
 
 
