@@ -164,27 +164,47 @@ BEGIN
 END;
 $$;
 
+-- DROP PROCEDURE edit_buyer_profile;
+
 CREATE OR REPLACE PROCEDURE edit_buyer_profile(
+    OUT success BOOLEAN,
     IN p_buyer_id INTEGER,
-    IN p_first_name VARCHAR(50),
-    IN p_last_name VARCHAR(50),
-    IN p_email VARCHAR(100),
-    IN p_phone_number VARCHAR(20),
-    IN p_address VARCHAR(200)
+    IN p_first_name VARCHAR(50) = NULL,
+    IN p_last_name VARCHAR(50) = NULL,
+    IN p_email VARCHAR(100) = NULL,
+    IN p_phone_number VARCHAR(20) = NULL,
+    IN p_birthdate date = NULL,
+    IN p_address VARCHAR(200) = NULL,
+    In p_password varchar(250)  = NULL
 )
     LANGUAGE plpgsql
 AS
 $$
+DECLARE
+    row_count INTEGER;
 BEGIN
     UPDATE Buyer
-    SET first_name   = p_first_name,
-        last_name    = p_last_name,
-        email        = p_email,
-        phone_number = p_phone_number,
-        address      = p_address
+    SET first_name   = COALESCE(p_first_name, first_name),
+        last_name    = COALESCE(p_last_name, last_name),
+        email        = COALESCE(p_email, email),
+        phone_number = COALESCE(p_phone_number, phone_number),
+        birthdate    = COALESCE(p_birthdate, birthdate),
+        address      = COALESCE(p_address, address),
+        password     = COALESCE(p_password, password)
     WHERE id = p_buyer_id;
+
+    GET DIAGNOSTICS row_count := ROW_COUNT;
+
+    IF row_count > 0 THEN
+        success := TRUE;
+    ELSE
+        success := FALSE;
+    END IF;
+
 END;
 $$;
+
+
 
 CREATE OR REPLACE PROCEDURE edit_merchant_profile(
     IN p_merchant_id INTEGER,

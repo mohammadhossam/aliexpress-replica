@@ -1,6 +1,12 @@
 create
 database aliexpress;
 
+-- DROP TABLE Product CASCADE;
+-- DROP TABLE Merchant CASCADE;
+-- DROP TABLE Buyer CASCADE;
+-- INSERT INTO Buyer (first_name, last_name, email, phone_number, birthdate, address, password, role)
+-- VALUES ('John', 'Doe', 'johndoe@example.com', '1234567890', '1990-01-01', '123 Main St, Anytown USA', 'password123', 'buyer');
+
 create table Buyer(
     id           serial primary key,
     first_name   varchar(50)         not null,
