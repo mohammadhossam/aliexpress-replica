@@ -19,6 +19,9 @@ create table Buyer(
     role         varchar(100)        not null
 );
 
+-- INSERT INTO Merchant (first_name, last_name, email, tax_number, phone_number, birthdate, address, password, role)
+-- VALUES ('John', 'Doe', 'johndoe@example.com', '123456789', '555-555-5555', '1990-01-01', '123 Main St', 'mypassword', 'merchant');
+
 CREATE TABLE Merchant
 (
     id           serial primary key,
