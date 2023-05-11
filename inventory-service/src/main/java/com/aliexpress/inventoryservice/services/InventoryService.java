@@ -3,11 +3,14 @@ package com.aliexpress.inventoryservice.services;
 import com.aliexpress.inventoryservice.dto.InventoryRequest;
 import com.aliexpress.inventoryservice.models.Inventory;
 import com.aliexpress.inventoryservice.repositories.InventoryRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class InventoryService {
         inventoryRepository.createInventory(request.getId(), request.getQuantity());
         return inventoryRepository.findById(request.getId()).get();
     }
+
     @SneakyThrows
     public int getProductData(String id) {
         log.info("Get Inventory");
@@ -47,11 +51,25 @@ public class InventoryService {
         inventoryRepository.decrementStock(id, request.getQuantity());
         return inventoryRepository.findById(id).get();
     }
+
     @SneakyThrows
     public Inventory incrementStock(String id, InventoryRequest request) {
         log.info("Increment stock");
         inventoryRepository.incrementStock(id, request.getQuantity());
         return inventoryRepository.findById(id).get();
+    }
+
+    public void decrementProducts(String[] ids, int[] amount)
+    {
+        log.info("decrement products");
+        log.info(ids.toString());
+        inventoryRepository.decrementProducts(ids, amount);
+    }
+    public void incrementProducts(String[] ids, int[] amount)
+    {
+        log.info("increment products");
+        log.info(ids.toString());
+        inventoryRepository.incrementProducts(ids, amount);
     }
 
 }

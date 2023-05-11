@@ -1,0 +1,14 @@
+package com.aliexpress.inventoryservice.dto;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class StockUpdateRequest {
+  String[] ids;
+  int[] amount;
+}

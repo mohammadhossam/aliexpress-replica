@@ -2,6 +2,6 @@ POST http://localhost:8080/api/inventory HTTP/1.1
 content-type: application/json
 
 {
-  "id": "id7",
+  "id": "id8",
   "quantity": 5
 }
