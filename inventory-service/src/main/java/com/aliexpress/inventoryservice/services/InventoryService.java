@@ -1,13 +1,22 @@
 package com.aliexpress.inventoryservice.services;
 ;
 import com.aliexpress.inventoryservice.dto.InventoryRequest;
+import com.aliexpress.inventoryservice.dto.OrderRequest;
 import com.aliexpress.inventoryservice.models.Inventory;
 import com.aliexpress.inventoryservice.repositories.InventoryRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +24,8 @@ import org.springframework.stereotype.Service;
 public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
+    private static final Logger logger= LoggerFactory.getLogger(InventoryService.class);
+
 
     @SneakyThrows
     public Inventory createProduct(InventoryRequest request) {
@@ -54,4 +65,11 @@ public class InventoryService {
         return inventoryRepository.findById(id).get();
     }
 
+    @RabbitListener(queues = {"${rabbitmq.jsonQueue.name}"})
+    public void consume(String order) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        TypeReference<OrderRequest> mapType = new TypeReference<>() {};
+        OrderRequest payload = objectMapper.readValue(order, mapType);
+        logger.info(String.format("Received Json message => %s", payload.toString()));
+    }
 }

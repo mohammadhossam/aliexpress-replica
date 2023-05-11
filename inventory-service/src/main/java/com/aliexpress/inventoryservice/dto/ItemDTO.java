@@ -1,4 +1,4 @@
-package com.aliexpress.paymentservice.dto;
+package com.aliexpress.inventoryservice.dto;
 
 import lombok.*;
 

@@ -1,7 +1,6 @@
 package com.aliexpress.paymentservice.service;
 
 import com.aliexpress.paymentservice.dto.OrderRequest;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
@@ -10,15 +9,8 @@ import com.stripe.model.Refund;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 
-
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,17 +60,6 @@ public class StripeService {
         params.put("charge", chargeId);
         Refund refund = Refund.create(params);
         return refund;
-    }
-
-    //todo - move the code below to Inventory Service +app.props stuff
-    private static final Logger logger= LoggerFactory.getLogger(StripeService.class);
-
-    @RabbitListener(queues = {"${rabbitmq.jsonQueue.name}"})
-    public void consume(String order) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        TypeReference<OrderRequest> mapType = new TypeReference<>() {};
-        OrderRequest payload = objectMapper.readValue(order, mapType);
-        logger.info(String.format("Received Json message => %s", payload.toString()));
     }
 
 }
