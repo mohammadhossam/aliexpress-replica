@@ -5,6 +5,7 @@ import com.aliexpress.inventoryservice.dto.OrderRequest;
 import com.aliexpress.inventoryservice.dto.OrderResponse;
 import com.aliexpress.inventoryservice.models.Inventory;
 import com.aliexpress.inventoryservice.repositories.InventoryRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -74,6 +77,19 @@ public class InventoryService {
         log.info("Increment stock");
         inventoryRepository.incrementStock(id, request.getQuantity());
         return inventoryRepository.findById(id).get();
+    }
+
+    public void decrementProducts(String[] ids, int[] amount)
+    {
+        log.info("decrement products");
+        log.info(ids.toString());
+        inventoryRepository.decrementProducts(ids, amount);
+    }
+    public void incrementProducts(String[] ids, int[] amount)
+    {
+        log.info("increment products");
+        log.info(ids.toString());
+        inventoryRepository.incrementProducts(ids, amount);
     }
 
     @RabbitListener(queues = {"${rabbitmq.jsonQueueOrdersToInv.name}"})
