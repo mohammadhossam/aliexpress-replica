@@ -15,7 +15,7 @@ public class CreateProductRequest {
     private String name;
     private String description;
     private BigDecimal price;
-    private String imgSrc; // TODO: change so that a file is sent and not a URL
+    private String imgSrc;
     private String merchantId;
     private String categoryName;
     private boolean isShippedForFree;

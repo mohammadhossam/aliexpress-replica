@@ -6,6 +6,7 @@ import com.msa.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,5 +27,11 @@ public class ProductController {
     @ResponseStatus(HttpStatus.CREATED)
     public ProductResponse createProduct(@RequestBody CreateProductRequest createProductRequest) {
         return productService.createProduct(createProductRequest);
+    }
+
+    @PostMapping("/upload-image")
+    public String handleFileUpload(@RequestParam("img") MultipartFile img) {
+        // TODO: upload to s3
+        return "https://google.com";
     }
 }
