@@ -2,6 +2,7 @@ package com.aliexpress.inventoryservice.services;
 ;
 import com.aliexpress.inventoryservice.dto.InventoryRequest;
 import com.aliexpress.inventoryservice.dto.OrderRequest;
+import com.aliexpress.inventoryservice.dto.OrderResponse;
 import com.aliexpress.inventoryservice.models.Inventory;
 import com.aliexpress.inventoryservice.repositories.InventoryRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,6 +14,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +28,14 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
+    @Value("${rabbitmq.exchangeInvToPay.name}")
+    private String exchangeName;
+    @Value("${rabbitmq.jsonBindingInvToPay.routingKey}")
+    private String jsonRoutingKey;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
     private static final Logger logger= LoggerFactory.getLogger(InventoryService.class);
+
 
 
     @SneakyThrows
@@ -65,19 +76,22 @@ public class InventoryService {
         return inventoryRepository.findById(id).get();
     }
 
-    @RabbitListener(queues = {"${rabbitmq.jsonQueue.name}"})
-    public void consume(String order) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        TypeReference<OrderRequest> mapType = new TypeReference<>() {};
-        OrderRequest payload = objectMapper.readValue(order, mapType);
-        logger.info(String.format("Received Json message => %s", payload.toString()));
+    @RabbitListener(queues = {"${rabbitmq.jsonQueueOrdersToInv.name}"})
+    public void consume(OrderResponse orderResponse) throws JsonProcessingException {
+//        ObjectMapper objectMapper = new ObjectMapper();
+        logger.info(String.format("Received Json message => %s", orderResponse.toString()));
+
+
         /* todo
         * go to DB and do the checks and the looping
         * in case of problem - undo changes + trigger order service
         * in case all is good - send order to payment thru MQ
         * do we need to handle user auth???
-        *
         * */
+    }
+    public void sendJsonMessage(OrderResponse order) {
+        logger.info(String.format("Sent JSON message => %s", order.toString()));
+        rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, order);
     }
     //todo - receive a rollback from payment
 }

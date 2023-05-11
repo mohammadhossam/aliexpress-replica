@@ -2,6 +2,7 @@ package com.aliexpress.orderservice.services;
 
 import com.aliexpress.orderservice.dto.ItemDTO;
 import com.aliexpress.orderservice.dto.OrderRequest;
+import com.aliexpress.orderservice.dto.OrderResponse;
 import com.aliexpress.orderservice.models.Item;
 import com.aliexpress.orderservice.models.Order;
 import com.aliexpress.orderservice.repositories.OrderRepository;
@@ -19,9 +20,9 @@ import java.util.UUID;
 public class OrderService {
     @Autowired
     private OrderRepository repo;
-    @Value("${rabbitmq.exchange.name}")
+    @Value("${rabbitmq.exchangeOrdersToInv.name}")
     private String exchangeName;
-    @Value("${rabbitmq.jsonBinding.routingKey}")
+    @Value("${rabbitmq.jsonBindingOrdersToInv.routingKey}")
     private String jsonRoutingKey;
     @Autowired
     private RabbitTemplate rabbitTemplate;
@@ -43,6 +44,7 @@ public class OrderService {
         Order order = new Order();
         order.setId(UUID.randomUUID().toString());
         mapToOrder(orderRequest, order);
+        sendJsonMessage(mapToOrderResponse(order));
     }
 
     public void updateOrder(String id, OrderRequest orderRequest) {
@@ -59,20 +61,41 @@ public class OrderService {
         order.setDate(orderRequest.getDate());
         List<Item> items = orderRequest.getItems()
                 .stream()
-                .map(this::mapToItem)
+                .map(this::mapItemDTOToItem)
                 .toList();
         order.setItems(items);
         repo.save(order);
     }
-    private Item mapToItem(ItemDTO itemDto) {
+    private Item mapItemDTOToItem(ItemDTO itemDto) {
         Item item = new Item();
         item.setId(itemDto.getId());
         item.setPrice(itemDto.getPrice());
         item.setQuantity(itemDto.getQuantity());
         return item;
     }
+    private ItemDTO mapItemToItemDTO(Item item) {
+        ItemDTO itemDto = new ItemDTO();
+        item.setId(item.getId());
+        item.setPrice(item.getPrice());
+        item.setQuantity(item.getQuantity());
+        return itemDto;
+    }
+    public OrderResponse mapToOrderResponse(Order order){
+        OrderResponse orderResponse = new OrderResponse();
+        orderResponse.setId(order.getId());
+        orderResponse.setDate(order.getDate());
+        orderResponse.setUser_id(order.getUser_id());
+        orderResponse.setTotal_price(order.getTotal_price());
+        orderResponse.setStatus(order.getStatus());
+        List<ItemDTO> itemsDto = order.getItems()
+                .stream()
+                .map(this::mapItemToItemDTO)
+                .toList();
+        orderResponse.setItems(itemsDto);
+        return orderResponse;
+    }
 
-    public void sendJsonMessage(OrderRequest order) {
+    public void sendJsonMessage(OrderResponse order) {
         logger.info(String.format("Sent JSON message => %s", order.toString()));
         rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, order);
     }
