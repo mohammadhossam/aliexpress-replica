@@ -2,9 +2,11 @@ package com.msa.controller;
 
 import com.msa.dto.CreateProductRequest;
 import com.msa.dto.ProductResponse;
+import com.msa.dto.UpdateProductRequest;
 import com.msa.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +23,26 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     public List<ProductResponse> getAllProducts() {
         return productService.getAllProducts();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponse> getProduct(@PathVariable String id) {
+        ProductResponse productResponse = productService.getProduct(id);
+
+        if (productResponse != null)
+            return ResponseEntity.ok(productResponse);
+
+        return ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable String id, @RequestBody UpdateProductRequest updateProductRequest) {
+        ProductResponse productResponse = productService.updateProduct(id, updateProductRequest);
+
+        if (productResponse != null)
+            return ResponseEntity.ok(productResponse);
+
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping
