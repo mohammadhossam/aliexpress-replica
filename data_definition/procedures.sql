@@ -164,10 +164,9 @@ BEGIN
 END;
 $$;
 
--- DROP PROCEDURE edit_buyer_profile;
-
 CREATE OR REPLACE PROCEDURE edit_buyer_profile(
     OUT success BOOLEAN,
+    OUT reason VARCHAR(200),
     IN p_buyer_id INTEGER,
     IN p_first_name VARCHAR(50) = NULL,
     IN p_last_name VARCHAR(50) = NULL,
@@ -180,8 +179,6 @@ CREATE OR REPLACE PROCEDURE edit_buyer_profile(
     LANGUAGE plpgsql
 AS
 $$
-DECLARE
-    row_count INTEGER;
 BEGIN
     UPDATE Buyer
     SET first_name   = COALESCE(p_first_name, first_name),
@@ -193,14 +190,19 @@ BEGIN
         password     = COALESCE(p_password, password)
     WHERE id = p_buyer_id;
 
-    GET DIAGNOSTICS row_count := ROW_COUNT;
-
-    IF row_count > 0 THEN
+    IF FOUND THEN
         success := TRUE;
+        reason := 'Success';
     ELSE
         success := FALSE;
+        reason := 'No record found for buyerId: ' || p_buyer_id;
+        RETURN;
     END IF;
 
+EXCEPTION
+    WHEN OTHERS THEN
+        success := FALSE;
+        reason := SQLERRM;
 END;
 $$;
 

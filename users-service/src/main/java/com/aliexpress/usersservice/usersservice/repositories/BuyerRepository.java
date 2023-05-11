@@ -9,14 +9,15 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
 public interface BuyerRepository extends JpaRepository<Buyer, Long> {
     @Modifying
     @Transactional
-    @Query(value = "CALL public.edit_buyer_profile(null,:buyerId,:firstName,:lastName,:email,:phone,:birthdate,:address,:password)", nativeQuery = true)
-    Boolean updateBuyer(
+    @Query(value = "CALL public.edit_buyer_profile(null,null,:buyerId,:firstName,:lastName,:email,:phone,:birthdate,:address,:password)", nativeQuery = true)
+    Map<String, Object> updateBuyer(
             @Param("buyerId") Integer buyerId,
             @Param("firstName") String firstName,
             @Param("lastName") String lastName,
