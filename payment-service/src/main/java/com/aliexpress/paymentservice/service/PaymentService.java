@@ -1,6 +1,9 @@
 package com.aliexpress.paymentservice.service;
 
 import com.stripe.Stripe;
+import com.stripe.exception.CardException;
+import com.stripe.exception.InvalidRequestException;
+import com.stripe.exception.RateLimitException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.model.Customer;
@@ -14,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class StripeService {
+public class PaymentService {
 
     @Value("${STRIPE_SECRET_KEY}")
     private String secretKey;
@@ -45,13 +48,21 @@ public class StripeService {
     }
 
     public Charge chargeCustomerCard(String customerId, int amount) throws StripeException {
+        //todo - hard-coded token from nada
         String sourceCard = getCustomer(customerId).getDefaultSource();
         Map<String, Object> chargeParams = new HashMap<>();
         chargeParams.put("amount", amount);
         chargeParams.put("currency", "USD");
         chargeParams.put("customer", customerId);
         chargeParams.put("source", sourceCard);
-        Charge charge = Charge.create(chargeParams);
+        Charge charge = null;
+        try {
+            charge = Charge.create(chargeParams);
+        } catch (CardException e) {
+            //todo - in case of err send msg to inventory service
+//            System.out.println("Status is: " + e.getCode());
+//            System.out.println("Message is: " + e.getMessage());
+        }
         return charge;
     }
     public Refund refund(String chargeId) throws StripeException {
@@ -61,4 +72,11 @@ public class StripeService {
         return refund;
     }
 
+    //todo
+    /*
+    * receive order from inventory
+    * trigger payment - both user and merchant side - simulation only
+    * if any err - undo any changes + trigger inventory service
+    * if all good then tmam
+    * */
 }

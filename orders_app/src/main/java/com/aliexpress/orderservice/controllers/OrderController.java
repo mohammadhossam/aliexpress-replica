@@ -49,7 +49,7 @@ public class OrderController {
     @PostMapping("/publish")
     public ResponseEntity<String> sendMessage(@RequestBody OrderRequest order){
         order_service.sendJsonMessage(order);
-        return ResponseEntity.ok("Message sent successfully...");
+        return ResponseEntity.ok("Order sent successfully...");
     }
 
 

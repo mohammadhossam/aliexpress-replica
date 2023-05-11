@@ -71,5 +71,13 @@ public class InventoryService {
         TypeReference<OrderRequest> mapType = new TypeReference<>() {};
         OrderRequest payload = objectMapper.readValue(order, mapType);
         logger.info(String.format("Received Json message => %s", payload.toString()));
+        /* todo
+        * go to DB and do the checks and the looping
+        * in case of problem - undo changes + trigger order service
+        * in case all is good - send order to payment thru MQ
+        * do we need to handle user auth???
+        *
+        * */
     }
+    //todo - receive a rollback from payment
 }

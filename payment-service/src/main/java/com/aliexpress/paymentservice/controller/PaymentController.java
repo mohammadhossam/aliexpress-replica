@@ -2,7 +2,7 @@ package com.aliexpress.paymentservice.controller;
 
 import com.aliexpress.paymentservice.dto.ChargeRequest;
 import com.aliexpress.paymentservice.dto.RefundRequest;
-import com.aliexpress.paymentservice.service.StripeService;
+import com.aliexpress.paymentservice.service.PaymentService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.model.Customer;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/payment")
 public class PaymentController {
     @Autowired
-    private StripeService stripe_service;
+    private PaymentService stripe_service;
 
     @PostMapping("/charges")
     public ResponseEntity<?> chargeCard(@RequestBody ChargeRequest paymentRequest) {
