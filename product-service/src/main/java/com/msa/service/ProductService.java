@@ -76,4 +76,13 @@ public class ProductService {
                 })
                 .orElse(null);
     }
+
+    public ProductResponse deleteProduct(String id) {
+        return productRepository.findById(id)
+                .map(product -> {
+                    productRepository.delete(product);
+                    return mapFromProductToProductResponse(product);
+                })
+                .orElse(null);
+    }
 }
