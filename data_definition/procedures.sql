@@ -240,7 +240,7 @@ BEGIN
         reason := 'Success';
     ELSE
         success := FALSE;
-        reason := 'No record found for buyerId: ' || p_merchant_id;
+        reason := 'No record found for merchantId: ' || p_merchant_id;
         RETURN;
     END IF;
 
