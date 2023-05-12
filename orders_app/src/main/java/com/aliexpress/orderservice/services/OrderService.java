@@ -65,6 +65,7 @@ public class OrderService {
                 .map(this::mapItemDTOToItem)
                 .toList();
         order.setItems(items);
+        order.setTotal_price(orderRequest.getTotal_price());
         repo.save(order);
     }
     private Item mapItemDTOToItem(ItemDTO itemDto) {
@@ -72,6 +73,7 @@ public class OrderService {
         item.setId(itemDto.getId());
         item.setPrice(itemDto.getPrice());
         item.setQuantity(itemDto.getQuantity());
+        item.setMerchantId(itemDto.getMerchantId());
         return item;
     }
     private ItemDTO mapItemToItemDTO(Item item) {
@@ -79,6 +81,7 @@ public class OrderService {
         itemDto.setId(item.getId());
         itemDto.setPrice(item.getPrice());
         itemDto.setQuantity(item.getQuantity());
+        itemDto.setMerchantId(item.getMerchantId());
         return itemDto;
     }
     public OrderResponse mapToOrderResponse(Order order){

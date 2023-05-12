@@ -12,4 +12,5 @@ public class ItemDTO {
     private String id;
     private double price;
     private Integer quantity;
+    private Long merchantId;
 }

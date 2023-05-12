@@ -1,13 +1,13 @@
 package com.aliexpress.paymentservice.service;
 
 import com.aliexpress.paymentservice.dto.ChargeRequest;
+import com.aliexpress.paymentservice.dto.OrderResponse;
 import com.aliexpress.paymentservice.dto.PayoutRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
 import jakarta.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class StripeService {
-    Logger logger= LoggerFactory.getLogger(StripeService.class);
+public class PaymentService {
+    Logger logger = LoggerFactory.getLogger(PaymentService.class);
     @Value("${STRIPE_SECRET_KEY}")
     private String secretKey;
     @Value("${rabbitmq.exchangePayToInv.name}")
@@ -30,12 +30,11 @@ public class StripeService {
     private String jsonRoutingKeyPayToInv;
     @Autowired
     private RabbitTemplate rabbitTemplate;
-    @PostConstruct
-    private void setSecretKey(){
-        Stripe.apiKey= secretKey;
-    }
-    private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
 
+    @PostConstruct
+    private void setSecretKey() {
+        Stripe.apiKey = secretKey;
+    }
 
     public Customer createCustomer(String token, String email) throws Exception {
         Map<String, Object> customerParams = new HashMap<String, Object>();
@@ -62,7 +61,7 @@ public class StripeService {
         Map<String, Object> chargeParams = new HashMap<>();
         chargeParams.put("amount", (int) (chargeRequest.getAmount() * 100));
         chargeParams.put("currency", "USD");
-        chargeParams.put("source", token);
+        chargeParams.put("source", token.getId());
         Charge charge = Charge.create(chargeParams);
         return charge;
     }
@@ -100,17 +99,32 @@ public class StripeService {
 
 
     @RabbitListener(queues = {"${rabbitmq.jsonQueueInvToPay.name}"})
-    public void consumeOrder(OrderResponse orderResponse) throws JsonProcessingException {
+    public void consumeOrder(OrderResponse orderResponse) throws JsonProcessingException, StripeException {
         logger.info(String.format("Received Json message => %s", orderResponse.toString()));
+        try {
+            ChargeRequest chargeRequest = new ChargeRequest();
+            chargeRequest.setAmount(orderResponse.getTotal_price());
+            chargeNewCard(chargeRequest);
+        }
+        catch (Exception e){
+            logger.info("Payment Exception "+e.getMessage());
+            orderRollback(orderResponse, exchangeNamePayToInv, jsonRoutingKeyPayToInv);
+            return;
+        }
+//        todo - payout??
+//        try{
+//            //payout
+//        }
+//        catch (Exception e){
+//            //refund
+//            orderRollback(orderResponse, exchangeNamePayToInv, jsonRoutingKeyPayToInv);
+//            return;
+//        }
+        logger.info("Payment successful!");
     }
+
     public void orderRollback(OrderResponse orderResponse, String exchangeName, String jsonRoutingKey) {
         logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
         rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, orderResponse);
     }
-    //todo
-    /*
-    * trigger payment - both user and merchant side - simulation only
-    * if any err - undo any changes + trigger inventory service
-    * if all good then tmam
-    * */
 }

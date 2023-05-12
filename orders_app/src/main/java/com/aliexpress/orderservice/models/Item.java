@@ -13,4 +13,5 @@ public class Item {
     private String id;
     private int quantity;
     private double price;
+    private Long merchantId;
 }

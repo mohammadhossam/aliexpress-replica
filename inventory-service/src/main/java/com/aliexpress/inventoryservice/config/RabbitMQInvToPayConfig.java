@@ -10,45 +10,33 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class RabbitMQConfig {
+public class RabbitMQInvToPayConfig {
     @Value("${rabbitmq.jsonQueueInvToPay.name}")
-    private String jsonQueueName;
+    private String jsonQueueNameInvToPay;
     @Value("${rabbitmq.exchangeInvToPay.name}")
-    private String exchangeName;
+    private String exchangeNameInvToPay;
     @Value("${rabbitmq.jsonBindingInvToPay.routingKey}")
-    private String jsonRoutingKey;
+    private String jsonRoutingKeyInvToPay;
 
     //Spring bean for rabbitmq queue
 
     @Bean
-    public Queue jsonQueue() {
-        return new Queue(jsonQueueName);
+    public Queue jsonQueueInvToPay() {
+        return new Queue(jsonQueueNameInvToPay);
     }
 
     //Spring bean for rabbitmq exchange
     @Bean
-    public TopicExchange exchange() {
-        return new TopicExchange(exchangeName);
+    public TopicExchange exchangeInvToPay() {
+        return new TopicExchange(exchangeNameInvToPay);
     }
 
     //Binding between and exchange using routing key
     @Bean
-    public Binding jsonBinding() {
-        return BindingBuilder.bind(jsonQueue()).
-                to(exchange()).
-                with(jsonRoutingKey);
-    }
-
-    @Bean
-    public MessageConverter converter() {
-        return new Jackson2JsonMessageConverter();
-    }
-
-    @Bean
-    public AmqpTemplate amqpTemplate(ConnectionFactory factory) {
-        RabbitTemplate rabbitTemplate = new RabbitTemplate(factory);
-        rabbitTemplate.setMessageConverter(converter());
-        return rabbitTemplate;
+    public Binding jsonBindingInvToPay() {
+        return BindingBuilder.bind(jsonQueueInvToPay()).
+                to(exchangeInvToPay()).
+                with(jsonRoutingKeyInvToPay);
     }
 
 }

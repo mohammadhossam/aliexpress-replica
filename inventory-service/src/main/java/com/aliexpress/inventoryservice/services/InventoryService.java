@@ -1,8 +1,8 @@
 package com.aliexpress.inventoryservice.services;
 
-import com.aliexpress.inventoryservice.dto.InventoryRequest;
 import com.aliexpress.inventoryservice.dto.ItemDTO;
 import com.aliexpress.inventoryservice.dto.OrderResponse;
+import com.aliexpress.inventoryservice.dto.InventoryRequest;
 import com.aliexpress.inventoryservice.models.Inventory;
 import com.aliexpress.inventoryservice.repositories.InventoryRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -105,11 +105,11 @@ public class InventoryService {
     @RabbitListener(queues = {"${rabbitmq.jsonQueueOrdToInv.name}"})
     public void consumeOrder(OrderResponse orderResponse) throws JsonProcessingException {
         logger.info(String.format("Received Json message => %s", orderResponse.toString()));
-        try{
+        try {
             decrementProducts(mapItemsDTOToIDs(orderResponse.getItems()),
                     mapItemsDTOToAmounts(orderResponse.getItems()));
-        }
-        catch (Exception e){
+            logger.info("Stock update successful!");
+        } catch (Exception e) {
             sendJsonMessage(orderResponse, exchangeNameInvToOrd, jsonRoutingKeyInvToOrd);
             return;
         }
@@ -120,6 +120,7 @@ public class InventoryService {
         logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
         rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, orderResponse);
     }
+
     @RabbitListener(queues = {"${rabbitmq.jsonQueuePayToInv.name}"})
     public void orderRollback(OrderResponse orderResponse) {
         incrementProducts(mapItemsDTOToIDs(orderResponse.getItems()),
