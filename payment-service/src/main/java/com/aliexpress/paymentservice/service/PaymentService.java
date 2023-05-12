@@ -1,16 +1,13 @@
 package com.aliexpress.paymentservice.service;
 
-import com.aliexpress.paymentservice.dto.OrderResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.aliexpress.paymentservice.dto.ChargeRequest;
+import com.aliexpress.paymentservice.dto.PayoutRequest;
 import com.stripe.Stripe;
-import com.stripe.exception.CardException;
-import com.stripe.exception.InvalidRequestException;
-import com.stripe.exception.RateLimitException;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Charge;
-import com.stripe.model.Customer;
-import com.stripe.model.Refund;
+import com.stripe.model.*;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -19,13 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class PaymentService {
-
+public class StripeService {
+    Logger logger= LoggerFactory.getLogger(StripeService.class);
     @Value("${STRIPE_SECRET_KEY}")
     private String secretKey;
     @Value("${rabbitmq.exchangePayToInv.name}")
@@ -52,9 +48,19 @@ public class PaymentService {
         return Customer.retrieve(id);
     }
 
-    public Charge chargeNewCard(String token, double amount) throws StripeException {
+    public Charge chargeNewCard(ChargeRequest chargeRequest) throws StripeException {
+        Map<String, Object> card = new HashMap<>();
+        card.put("number", "4242424242424242");
+        card.put("exp_month", 5);
+        card.put("exp_year", 2024);
+        card.put("cvc", "314");
+        Map<String, Object> params = new HashMap<>();
+        params.put("card", card);
+
+        Token token = Token.create(params);
+
         Map<String, Object> chargeParams = new HashMap<>();
-        chargeParams.put("amount", (int) (amount * 100));
+        chargeParams.put("amount", (int) (chargeRequest.getAmount() * 100));
         chargeParams.put("currency", "USD");
         chargeParams.put("source", token);
         Charge charge = Charge.create(chargeParams);
@@ -62,29 +68,37 @@ public class PaymentService {
     }
 
     public Charge chargeCustomerCard(String customerId, int amount) throws StripeException {
-        //todo - hard-coded token from nada
         String sourceCard = getCustomer(customerId).getDefaultSource();
         Map<String, Object> chargeParams = new HashMap<>();
         chargeParams.put("amount", amount);
         chargeParams.put("currency", "USD");
         chargeParams.put("customer", customerId);
         chargeParams.put("source", sourceCard);
-        Charge charge = null;
-        try {
-            charge = Charge.create(chargeParams);
-        } catch (CardException e) {
-            //todo - in case of err send msg to inventory service
-//            System.out.println("Status is: " + e.getCode());
-//            System.out.println("Message is: " + e.getMessage());
-        }
+        Charge charge = Charge.create(chargeParams);
         return charge;
     }
+
     public Refund refund(String chargeId) throws StripeException {
         Map<String, Object> params = new HashMap<>();
         params.put("charge", chargeId);
         Refund refund = Refund.create(params);
         return refund;
     }
+
+    // todo: add valid test bank account
+    public Payout payout(PayoutRequest payoutRequest) throws StripeException {
+        // get our stripe account
+
+        Map<String, Object> payoutParams = new HashMap<>();
+        payoutParams.put("amount", (int) (payoutRequest.getAmount() * 100));
+        payoutParams.put("currency", "USD");
+        payoutParams.put("destination", payoutRequest.getDestinationCustomerId());
+        payoutParams.put("description", "Test Payout");
+        Payout payout = Payout.create(payoutParams);
+        return payout;
+    }
+
+
     @RabbitListener(queues = {"${rabbitmq.jsonQueueInvToPay.name}"})
     public void consumeOrder(OrderResponse orderResponse) throws JsonProcessingException {
         logger.info(String.format("Received Json message => %s", orderResponse.toString()));

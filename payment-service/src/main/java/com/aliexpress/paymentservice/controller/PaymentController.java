@@ -1,8 +1,9 @@
 package com.aliexpress.paymentservice.controller;
 
 import com.aliexpress.paymentservice.dto.ChargeRequest;
+import com.aliexpress.paymentservice.dto.PayoutRequest;
 import com.aliexpress.paymentservice.dto.RefundRequest;
-import com.aliexpress.paymentservice.service.PaymentService;
+import com.aliexpress.paymentservice.service.StripeService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,28 +14,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/payment")
 public class PaymentController {
     @Autowired
-    private PaymentService stripe_service;
+    private StripeService stripe_service;
 
     @PostMapping("/charges")
     public ResponseEntity<?> chargeCard(@RequestBody ChargeRequest paymentRequest) {
         try {
-
-            // Get the customer object for the user
-            Customer customer = Customer.retrieve(paymentRequest.getCustomerId());
-
-            // Calculate the amount to be charged (in cents)
-            int amountCents = (int) Math.round(paymentRequest.getAmount() * 100);
-
-            // Create a new charge with the calculated amount and the customer's default payment source
-            Charge charge = stripe_service.chargeCustomerCard(customer.getId(), amountCents);
-
+            Charge charge= this.stripe_service.chargeNewCard(paymentRequest);
             // Return a success response
             return ResponseEntity.ok(charge.getId());
         } catch (Exception e) {
@@ -57,29 +46,15 @@ public class PaymentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-//    @PostMapping("/payTest")
-//    public ResponseEntity<?> refundCharge(@RequestBody ChargeRequest chargeRequest) throws StripeException {
-////        Map<String, Object> sourceParams = new HashMap<>();
-////        sourceParams.put("type", "bank_account");
-////        sourceParams.put("currency", "usd");
-////
-////        Source.create(sourceParams);
-//        Account account =
-//                Account.retrieve("acct_1N4hKILLjQQI9jqx");
-//
-//        Map<String, Object> params = new HashMap<>();
-//        params.put(
-//                "external_account",
-//                "btok_1N6wV6LLjQQI9jqxEPw7mpmo"
-//        );
-//        Map<String, Object> extParams = new HashMap<>();
-//        extParams.put("object","bank_account");
-//        extParams.put("country","US");
-//        extParams.put("currency","usd");
-//        extParams.put("account_number","000123456789");
-//        BankAccount bankAccount =
-//                (BankAccount) account
-//                        .getExternalAccounts()
-//                        .create(params);
-//    }
+    @PostMapping("/payouts")
+    public ResponseEntity<?> createPayout(@RequestBody PayoutRequest payoutRequest) {
+        try {
+            Payout payout = stripe_service.payout(payoutRequest);
+            // Return a success response
+            return ResponseEntity.ok(payout.getId());
+        } catch (StripeException e) {
+            // Return an error response
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 }
