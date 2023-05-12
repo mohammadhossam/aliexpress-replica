@@ -1,6 +1,5 @@
 package com.aliexpress.inventoryservice.repositories;
 
-import com.aliexpress.inventoryservice.dto.Item;
 import com.aliexpress.inventoryservice.models.Inventory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -48,8 +47,4 @@ public interface InventoryRepository extends JpaRepository<Inventory, String> {
     @Query(value = "CALL public.increment_products(:ids,:amount)", nativeQuery = true)
     void incrementProducts(@Param("ids") String[] p_product_id,
                            @Param("amount") int[] p_quantity);
-//    @Transactional(isolation = Isolation.SERIALIZABLE)
-//    @Modifying
-//    @Query(value = "CALL public.decrement_products(:items)", nativeQuery = true)
-//    void decrementProducts(@Param("items") List<Item>  items);
 }

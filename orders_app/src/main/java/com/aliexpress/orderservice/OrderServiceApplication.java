@@ -6,10 +6,10 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @SpringBootApplication
 @EnableMongoRepositories(basePackages = {"com.aliexpress.orderservice.repositories"})
-public class MongodbDemoApplication {
+public class OrderServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MongodbDemoApplication.class, args);
+        SpringApplication.run(OrderServiceApplication.class, args);
     }
 
 }

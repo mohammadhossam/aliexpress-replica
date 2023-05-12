@@ -1,4 +1,5 @@
-package com.aliexpress.inventoryservice.dto;;
+package com.aliexpress.inventoryservice.dto;
+
 import lombok.*;
 
 @Data
@@ -6,7 +7,10 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Item {
+public class ItemDTO {
+
     private String id;
+    private double price;
     private Integer quantity;
+    private Long merchantId;
 }

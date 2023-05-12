@@ -2,11 +2,16 @@ package com.aliexpress.orderservice.services;
 
 import com.aliexpress.orderservice.dto.ItemDTO;
 import com.aliexpress.orderservice.dto.OrderRequest;
+import com.aliexpress.orderservice.dto.OrderResponse;
 import com.aliexpress.orderservice.models.Item;
 import com.aliexpress.orderservice.models.Order;
 import com.aliexpress.orderservice.repositories.OrderRepository;
-import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +21,13 @@ import java.util.UUID;
 public class OrderService {
     @Autowired
     private OrderRepository repo;
+    @Value("${rabbitmq.exchangeOrdToInv.name}")
+    private String exchangeName;
+    @Value("${rabbitmq.jsonBindingOrdToInv.routingKey}")
+    private String jsonRoutingKey;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    private static final Logger logger= LoggerFactory.getLogger(OrderService.class);
 
     public List<Order> getAllOrders() {
         return repo.findAll();
@@ -33,6 +45,7 @@ public class OrderService {
         Order order = new Order();
         order.setId(UUID.randomUUID().toString());
         mapToOrder(orderRequest, order);
+        sendJsonMessage(mapToOrderResponse(order));
     }
 
     public void updateOrder(String id, OrderRequest orderRequest) {
@@ -49,17 +62,50 @@ public class OrderService {
         order.setDate(orderRequest.getDate());
         List<Item> items = orderRequest.getItems()
                 .stream()
-                .map(this::mapToItem)
+                .map(this::mapItemDTOToItem)
                 .toList();
         order.setItems(items);
+        order.setTotal_price(orderRequest.getTotal_price());
         repo.save(order);
     }
-    private Item mapToItem(ItemDTO itemDto) {
+    private Item mapItemDTOToItem(ItemDTO itemDto) {
         Item item = new Item();
         item.setId(itemDto.getId());
         item.setPrice(itemDto.getPrice());
         item.setQuantity(itemDto.getQuantity());
+        item.setMerchantId(itemDto.getMerchantId());
         return item;
+    }
+    private ItemDTO mapItemToItemDTO(Item item) {
+        ItemDTO itemDto = new ItemDTO();
+        itemDto.setId(item.getId());
+        itemDto.setPrice(item.getPrice());
+        itemDto.setQuantity(item.getQuantity());
+        itemDto.setMerchantId(item.getMerchantId());
+        return itemDto;
+    }
+    public OrderResponse mapToOrderResponse(Order order){
+        OrderResponse orderResponse = new OrderResponse();
+        orderResponse.setId(order.getId());
+        orderResponse.setDate(order.getDate());
+        orderResponse.setUser_id(order.getUser_id());
+        orderResponse.setTotal_price(order.getTotal_price());
+        orderResponse.setStatus(order.getStatus());
+        List<ItemDTO> itemsDto = order.getItems()
+                .stream()
+                .map(this::mapItemToItemDTO)
+                .toList();
+        orderResponse.setItems(itemsDto);
+        return orderResponse;
+    }
+
+    public void sendJsonMessage(OrderResponse order) {
+        logger.info(String.format("Sent JSON message => %s", order.toString()));
+        rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, order);
+    }
+    @RabbitListener(queues = {"${rabbitmq.jsonQueueInvToOrd.name}"})
+    public void orderRollback(OrderResponse orderResponse) {
+        deleteOrder(orderResponse.getId());
     }
 
 }
