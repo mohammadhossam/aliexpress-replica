@@ -72,5 +72,3 @@ build/
 *.sqlite
 *.h2.db
 
-inventory-service/src/main/resources/application.properties
-
