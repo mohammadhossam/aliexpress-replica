@@ -1,4 +1,4 @@
-package com.aliexpress.orderservice.config;
+package com.aliexpress.paymentservice.config;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -11,11 +11,11 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
-    @Value("${rabbitmq.jsonQueueOrdToInv.name}")
+    @Value("${rabbitmq.jsonQueuePayToInv.name}")
     private String jsonQueueName;
-    @Value("${rabbitmq.exchangeOrdToInv.name}")
+    @Value("${rabbitmq.exchangePayToInv.name}")
     private String exchangeName;
-    @Value("${rabbitmq.jsonBindingOrdToInv.routingKey}")
+    @Value("${rabbitmq.jsonBindingPayToInv.routingKey}")
     private String jsonRoutingKey;
 
     //Spring bean for rabbitmq queue

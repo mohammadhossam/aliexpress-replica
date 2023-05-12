@@ -1,5 +1,7 @@
 package com.aliexpress.paymentservice.service;
 
+import com.aliexpress.paymentservice.dto.OrderResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.stripe.Stripe;
 import com.stripe.exception.CardException;
 import com.stripe.exception.InvalidRequestException;
@@ -9,6 +11,9 @@ import com.stripe.model.Charge;
 import com.stripe.model.Customer;
 import com.stripe.model.Refund;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +31,8 @@ public class PaymentService {
     private void setSecretKey(){
         Stripe.apiKey= secretKey;
     }
+    private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
+
 
     public Customer createCustomer(String token, String email) throws Exception {
         Map<String, Object> customerParams = new HashMap<String, Object>();
@@ -71,10 +78,13 @@ public class PaymentService {
         Refund refund = Refund.create(params);
         return refund;
     }
+    @RabbitListener(queues = {"${rabbitmq.jsonQueueInvToPay.name}"})
+    public void consume(OrderResponse orderResponse) throws JsonProcessingException {
+        logger.info(String.format("Received Json message => %s", orderResponse.toString()));
 
+    }
     //todo
     /*
-    * receive order from inventory
     * trigger payment - both user and merchant side - simulation only
     * if any err - undo any changes + trigger inventory service
     * if all good then tmam

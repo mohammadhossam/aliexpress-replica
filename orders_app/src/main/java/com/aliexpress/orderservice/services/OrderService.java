@@ -20,9 +20,9 @@ import java.util.UUID;
 public class OrderService {
     @Autowired
     private OrderRepository repo;
-    @Value("${rabbitmq.exchangeOrdersToInv.name}")
+    @Value("${rabbitmq.exchangeOrdToInv.name}")
     private String exchangeName;
-    @Value("${rabbitmq.jsonBindingOrdersToInv.routingKey}")
+    @Value("${rabbitmq.jsonBindingOrdToInv.routingKey}")
     private String jsonRoutingKey;
     @Autowired
     private RabbitTemplate rabbitTemplate;

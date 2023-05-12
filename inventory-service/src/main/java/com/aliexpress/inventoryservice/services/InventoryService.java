@@ -98,7 +98,7 @@ public class InventoryService {
         return itemsDTO.stream().mapToInt(item -> item.getQuantity()).toArray();
     }
 
-    @RabbitListener(queues = {"${rabbitmq.jsonQueueOrdersToInv.name}"})
+    @RabbitListener(queues = {"${rabbitmq.jsonQueueOrdToInv.name}"})
     public void consume(OrderResponse orderResponse) throws JsonProcessingException {
         logger.info(String.format("Received Json message => %s", orderResponse.toString()));
         decrementProducts(mapItemsDTOToIDs(orderResponse.getItems()),
