@@ -14,6 +14,8 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +28,12 @@ public class PaymentService {
 
     @Value("${STRIPE_SECRET_KEY}")
     private String secretKey;
-
+    @Value("${rabbitmq.exchangePayToInv.name}")
+    private String exchangeNamePayToInv;
+    @Value("${rabbitmq.jsonBindingPayToInv.routingKey}")
+    private String jsonRoutingKeyPayToInv;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
     @PostConstruct
     private void setSecretKey(){
         Stripe.apiKey= secretKey;
@@ -79,9 +86,12 @@ public class PaymentService {
         return refund;
     }
     @RabbitListener(queues = {"${rabbitmq.jsonQueueInvToPay.name}"})
-    public void consume(OrderResponse orderResponse) throws JsonProcessingException {
+    public void consumeOrder(OrderResponse orderResponse) throws JsonProcessingException {
         logger.info(String.format("Received Json message => %s", orderResponse.toString()));
-
+    }
+    public void orderRollback(OrderResponse orderResponse, String exchangeName, String jsonRoutingKey) {
+        logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
+        rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, orderResponse);
     }
     //todo
     /*
