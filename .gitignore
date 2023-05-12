@@ -25,6 +25,7 @@ replay_pid*
 
 
 HELP.md
+
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -69,4 +70,4 @@ build/
 *.h2.db
 
 inventory-service/src/main/resources/application.properties
-
+/orders_app/src/main/resources/application.properties
