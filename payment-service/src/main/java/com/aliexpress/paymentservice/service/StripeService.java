@@ -5,18 +5,18 @@ import com.aliexpress.paymentservice.dto.PayoutRequest;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
-import com.stripe.param.TransferCreateParams;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
 public class StripeService {
-
+    Logger logger= LoggerFactory.getLogger(StripeService.class);
     @Value("${STRIPE_SECRET_KEY}")
     private String secretKey;
 
@@ -75,6 +75,8 @@ public class StripeService {
 
     // todo: add valid test bank account
     public Payout payout(PayoutRequest payoutRequest) throws StripeException {
+        // get our stripe account
+
         Map<String, Object> payoutParams = new HashMap<>();
         payoutParams.put("amount", (int) (payoutRequest.getAmount() * 100));
         payoutParams.put("currency", "USD");
