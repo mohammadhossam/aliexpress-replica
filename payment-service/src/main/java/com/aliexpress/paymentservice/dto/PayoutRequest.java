@@ -7,10 +7,10 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChargeRequest {
+public class PayoutRequest {
     public enum Currency {
         USD;
     }
+    private String destinationCustomerId;
     private double amount;
-    private String stripeToken;
 }

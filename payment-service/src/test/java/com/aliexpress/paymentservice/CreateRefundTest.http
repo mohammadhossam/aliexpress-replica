@@ -2,5 +2,5 @@ POST http://localhost:8080/api/payment/refunds HTTP/1.1
 content-type: application/json
 
 {
-  "chargeId": "ch_3N4lbZLLjQQI9jqx1Z4KNclM"
+  "chargeId": "ch_3N6tkALLjQQI9jqx1nZP42hz"
 }

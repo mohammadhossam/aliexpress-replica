@@ -1,15 +1,17 @@
 package com.aliexpress.paymentservice.service;
 
+import com.aliexpress.paymentservice.dto.ChargeRequest;
+import com.aliexpress.paymentservice.dto.PayoutRequest;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Charge;
-import com.stripe.model.Customer;
-import com.stripe.model.Refund;
+import com.stripe.model.*;
+import com.stripe.param.TransferCreateParams;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -34,9 +36,19 @@ public class StripeService {
         return Customer.retrieve(id);
     }
 
-    public Charge chargeNewCard(String token, double amount) throws StripeException {
+    public Charge chargeNewCard(ChargeRequest chargeRequest) throws StripeException {
+        Map<String, Object> card = new HashMap<>();
+        card.put("number", "4242424242424242");
+        card.put("exp_month", 5);
+        card.put("exp_year", 2024);
+        card.put("cvc", "314");
+        Map<String, Object> params = new HashMap<>();
+        params.put("card", card);
+
+        Token token = Token.create(params);
+
         Map<String, Object> chargeParams = new HashMap<>();
-        chargeParams.put("amount", (int) (amount * 100));
+        chargeParams.put("amount", (int) (chargeRequest.getAmount() * 100));
         chargeParams.put("currency", "USD");
         chargeParams.put("source", token);
         Charge charge = Charge.create(chargeParams);
@@ -53,11 +65,24 @@ public class StripeService {
         Charge charge = Charge.create(chargeParams);
         return charge;
     }
+
     public Refund refund(String chargeId) throws StripeException {
         Map<String, Object> params = new HashMap<>();
         params.put("charge", chargeId);
         Refund refund = Refund.create(params);
         return refund;
     }
+
+    // todo: add valid test bank account
+    public Payout payout(PayoutRequest payoutRequest) throws StripeException {
+        Map<String, Object> payoutParams = new HashMap<>();
+        payoutParams.put("amount", (int) (payoutRequest.getAmount() * 100));
+        payoutParams.put("currency", "USD");
+        payoutParams.put("destination", payoutRequest.getDestinationCustomerId());
+        payoutParams.put("description", "Test Payout");
+        Payout payout = Payout.create(payoutParams);
+        return payout;
+    }
+
 
 }
