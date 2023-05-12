@@ -11,6 +11,6 @@ public class ChargeRequest {
     public enum Currency {
         USD;
     }
+    private String customerId;
     private double amount;
-    private String stripeToken;
 }
