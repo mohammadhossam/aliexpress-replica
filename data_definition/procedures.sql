@@ -165,50 +165,89 @@ END;
 $$;
 
 CREATE OR REPLACE PROCEDURE edit_buyer_profile(
+    OUT success BOOLEAN,
+    OUT reason VARCHAR(200),
     IN p_buyer_id INTEGER,
-    IN p_first_name VARCHAR(50),
-    IN p_last_name VARCHAR(50),
-    IN p_email VARCHAR(100),
-    IN p_phone_number VARCHAR(20),
-    IN p_address VARCHAR(200)
+    IN p_first_name VARCHAR(50) = NULL,
+    IN p_last_name VARCHAR(50) = NULL,
+    IN p_email VARCHAR(100) = NULL,
+    IN p_phone_number VARCHAR(20) = NULL,
+    IN p_birthdate date = NULL,
+    IN p_address VARCHAR(200) = NULL,
+    In p_password varchar(250)  = NULL
 )
     LANGUAGE plpgsql
 AS
 $$
 BEGIN
     UPDATE Buyer
-    SET first_name   = p_first_name,
-        last_name    = p_last_name,
-        email        = p_email,
-        phone_number = p_phone_number,
-        address      = p_address
+    SET first_name   = COALESCE(p_first_name, first_name),
+        last_name    = COALESCE(p_last_name, last_name),
+        email        = COALESCE(p_email, email),
+        phone_number = COALESCE(p_phone_number, phone_number),
+        birthdate    = COALESCE(p_birthdate, birthdate),
+        address      = COALESCE(p_address, address),
+        password     = COALESCE(p_password, password)
     WHERE id = p_buyer_id;
+
+    IF FOUND THEN
+        success := TRUE;
+        reason := 'Success';
+    ELSE
+        success := FALSE;
+        reason := 'No record found for buyerId: ' || p_buyer_id;
+        RETURN;
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        success := FALSE;
+        reason := SQLERRM;
 END;
 $$;
 
+
 CREATE OR REPLACE PROCEDURE edit_merchant_profile(
+    OUT success BOOLEAN,
+    OUT reason VARCHAR(200),
     IN p_merchant_id INTEGER,
-    IN p_first_name VARCHAR(50),
-    IN p_last_name VARCHAR(50),
-    IN p_email VARCHAR(100),
-    IN p_tax_number VARCHAR(20),
-    IN p_phone_number VARCHAR(20),
-    IN p_birthdate DATE,
-    IN p_address VARCHAR(200)
+    IN p_first_name VARCHAR(50) = NULL,
+    IN p_last_name VARCHAR(50) = NULL,
+    IN p_email VARCHAR(100) = NULL,
+    IN p_phone_number VARCHAR(20) = NULL,
+    IN p_birthdate date = NULL,
+    IN p_address VARCHAR(200) = NULL,
+    In p_password varchar(250)  = NULL,
+    In p_tax_number varchar(20)  = NULL
 )
     LANGUAGE plpgsql
 AS
 $$
 BEGIN
     UPDATE Merchant
-    SET first_name   = p_first_name,
-        last_name    = p_last_name,
-        email        = p_email,
-        tax_number   = p_tax_number,
-        phone_number = p_phone_number,
-        birthdate    = p_birthdate,
-        address      = p_address
+    SET first_name   = COALESCE(p_first_name, first_name),
+        last_name    = COALESCE(p_last_name, last_name),
+        email        = COALESCE(p_email, email),
+        phone_number = COALESCE(p_phone_number, phone_number),
+        birthdate    = COALESCE(p_birthdate, birthdate),
+        address      = COALESCE(p_address, address),
+        password     = COALESCE(p_password, password),
+        tax_number   = COALESCE(p_tax_number, tax_number)
     WHERE id = p_merchant_id;
+
+    IF FOUND THEN
+        success := TRUE;
+        reason := 'Success';
+    ELSE
+        success := FALSE;
+        reason := 'No record found for merchantId: ' || p_merchant_id;
+        RETURN;
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        success := FALSE;
+        reason := SQLERRM;
 END;
 $$;
 
