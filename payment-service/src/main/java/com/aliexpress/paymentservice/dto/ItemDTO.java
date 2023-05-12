@@ -8,6 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemDTO {
+    //todo- ADD MERCHANT ID
 
     private String id;
     private double price;

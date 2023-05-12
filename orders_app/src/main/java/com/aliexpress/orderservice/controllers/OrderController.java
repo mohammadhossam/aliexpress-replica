@@ -46,11 +46,4 @@ public class OrderController {
         order_service.deleteOrder(id);
     }
 
-//    @PostMapping("/publish")
-//    public ResponseEntity<String> sendMessage(@RequestBody OrderRequest order){
-//        order_service.sendJsonMessage(order);
-//        return ResponseEntity.ok("Order sent successfully...");
-//    }
-
-
 }

@@ -4,9 +4,7 @@ import com.aliexpress.paymentservice.dto.ChargeRequest;
 import com.aliexpress.paymentservice.dto.RefundRequest;
 import com.aliexpress.paymentservice.service.PaymentService;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Charge;
-import com.stripe.model.Customer;
-import com.stripe.model.Refund;
+import com.stripe.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -56,4 +57,29 @@ public class PaymentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+//    @PostMapping("/payTest")
+//    public ResponseEntity<?> refundCharge(@RequestBody ChargeRequest chargeRequest) throws StripeException {
+////        Map<String, Object> sourceParams = new HashMap<>();
+////        sourceParams.put("type", "bank_account");
+////        sourceParams.put("currency", "usd");
+////
+////        Source.create(sourceParams);
+//        Account account =
+//                Account.retrieve("acct_1N4hKILLjQQI9jqx");
+//
+//        Map<String, Object> params = new HashMap<>();
+//        params.put(
+//                "external_account",
+//                "btok_1N6wV6LLjQQI9jqxEPw7mpmo"
+//        );
+//        Map<String, Object> extParams = new HashMap<>();
+//        extParams.put("object","bank_account");
+//        extParams.put("country","US");
+//        extParams.put("currency","usd");
+//        extParams.put("account_number","000123456789");
+//        BankAccount bankAccount =
+//                (BankAccount) account
+//                        .getExternalAccounts()
+//                        .create(params);
+//    }
 }

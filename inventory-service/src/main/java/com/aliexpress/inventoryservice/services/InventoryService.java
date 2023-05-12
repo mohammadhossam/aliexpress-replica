@@ -27,9 +27,13 @@ public class InventoryService {
 
     private final InventoryRepository inventoryRepository;
     @Value("${rabbitmq.exchangeInvToPay.name}")
-    private String exchangeName;
+    private String exchangeNameInvToPay;
     @Value("${rabbitmq.jsonBindingInvToPay.routingKey}")
-    private String jsonRoutingKey;
+    private String jsonRoutingKeyInvToPay;
+    @Value("${rabbitmq.exchangeInvToOrd.name}")
+    private String exchangeNameInvToOrd;
+    @Value("${rabbitmq.jsonBindingInvToOrd.routingKey}")
+    private String jsonRoutingKeyInvToOrd;
     @Autowired
     private RabbitTemplate rabbitTemplate;
     private static final Logger logger = LoggerFactory.getLogger(InventoryService.class);
@@ -99,21 +103,27 @@ public class InventoryService {
     }
 
     @RabbitListener(queues = {"${rabbitmq.jsonQueueOrdToInv.name}"})
-    public void consume(OrderResponse orderResponse) throws JsonProcessingException {
+    public void consumeOrder(OrderResponse orderResponse) throws JsonProcessingException {
         logger.info(String.format("Received Json message => %s", orderResponse.toString()));
-        decrementProducts(mapItemsDTOToIDs(orderResponse.getItems()),
-                mapItemsDTOToAmounts(orderResponse.getItems()));
-        /* todo
-         * handle exceptions
-         * in case of problem - undo changes + trigger order service
-         * in case all is good - send order to payment thru MQ
-         * do we need to handle user auth???
-         * */
+        try{
+            decrementProducts(mapItemsDTOToIDs(orderResponse.getItems()),
+                    mapItemsDTOToAmounts(orderResponse.getItems()));
+        }
+        catch (Exception e){
+            sendJsonMessage(orderResponse, exchangeNameInvToOrd, jsonRoutingKeyInvToOrd);
+            return;
+        }
+        sendJsonMessage(orderResponse, exchangeNameInvToPay, jsonRoutingKeyInvToPay);
     }
 
-    public void sendJsonMessage(OrderResponse order) {
-        logger.info(String.format("Sent JSON message => %s", order.toString()));
-        rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, order);
+    public void sendJsonMessage(OrderResponse orderResponse, String exchangeName, String jsonRoutingKey) {
+        logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
+        rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, orderResponse);
     }
-    //todo - receive a rollback from payment
+    @RabbitListener(queues = {"${rabbitmq.jsonQueuePayToInv.name}"})
+    public void orderRollback(OrderResponse orderResponse) {
+        incrementProducts(mapItemsDTOToIDs(orderResponse.getItems()),
+                mapItemsDTOToAmounts(orderResponse.getItems()));
+        sendJsonMessage(orderResponse, exchangeNameInvToOrd, jsonRoutingKeyInvToOrd);
+    }
 }

@@ -8,6 +8,7 @@ import com.aliexpress.orderservice.models.Order;
 import com.aliexpress.orderservice.repositories.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -98,6 +99,10 @@ public class OrderService {
     public void sendJsonMessage(OrderResponse order) {
         logger.info(String.format("Sent JSON message => %s", order.toString()));
         rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, order);
+    }
+    @RabbitListener(queues = {"${rabbitmq.jsonQueueInvToOrd.name}"})
+    public void orderRollback(OrderResponse orderResponse) {
+        deleteOrder(orderResponse.getId());
     }
 
 }
