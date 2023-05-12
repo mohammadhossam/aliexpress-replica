@@ -3,6 +3,7 @@ package com.msa.controller;
 import com.msa.dto.CreateProductRequest;
 import com.msa.dto.ProductResponse;
 import com.msa.dto.UpdateProductRequest;
+import com.msa.service.FileService;
 import com.msa.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final FileService fileService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -36,7 +38,8 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductResponse> updateProduct(@PathVariable String id, @RequestBody UpdateProductRequest updateProductRequest) {
+    public ResponseEntity<ProductResponse> updateProduct(@PathVariable String id,
+            @RequestBody UpdateProductRequest updateProductRequest) {
         ProductResponse productResponse = productService.updateProduct(id, updateProductRequest);
 
         if (productResponse != null)
@@ -52,9 +55,9 @@ public class ProductController {
     }
 
     @PostMapping("/upload-image")
-    public String handleFileUpload(@RequestParam("img") MultipartFile img) {
-        // TODO: upload to s3
-        return "https://google.com";
+    @ResponseStatus(HttpStatus.OK)
+    public String uploadImage(@RequestParam("img") MultipartFile img) {
+        return fileService.uploadImage(img);
     }
 
     @DeleteMapping("/{id}")
