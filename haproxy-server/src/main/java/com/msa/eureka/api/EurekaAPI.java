@@ -1,30 +1,21 @@
-package com.eureka.api;
+package com.msa.eureka.api;
+
+import com.msa.controller.Properties;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Properties;
 
 public class EurekaAPI {
 
     private static String getAllInstancesReq = "eureka/v2/apps";
-    private static Properties properties = new Properties();
 
-    public EurekaAPI() throws IOException {
-        loadPropertiesFile();
+    public EurekaAPI() {
+
     }
-
-
-    private void loadPropertiesFile() throws IOException {
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        InputStream is = classloader.getResourceAsStream("application.properties");
-        assert is != null;
-        properties.load(is);
-    }
-
 
     public String getAllInstances() throws IOException {
-        String endpoint = properties.getProperty("eurekaServerHost");
+        String endpoint = Properties.getProperties().getProperty("eurekaServerHost");
         if (endpoint == null)
             throw new IOException("Couldn't find the eurekaServerHost property");
 
@@ -51,7 +42,4 @@ public class EurekaAPI {
         return response.toString();
     }
 
-    public static void main(String[] args) throws IOException {
-        System.out.println(new EurekaAPI().getAllInstances());
-    }
 }

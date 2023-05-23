@@ -1,13 +1,11 @@
-package com.eureka.api;
+package com.msa.eureka.api;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.service.Service;
-import com.service.ServiceInstance;
+import com.msa.service.Service;
 import org.json.simple.parser.ParseException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +13,18 @@ public class EurekaJsonParser {
 
     private String jsonString;
 
+    public EurekaJsonParser() {
+    }
+
     public EurekaJsonParser(String json) {
         this.jsonString = json;
     }
 
-    public void parse() throws ParseException {
+    public void setJsonString(String jsonString) {
+        this.jsonString = jsonString;
+    }
+
+    public List<Service> parse() throws ParseException {
         JsonObject jsonObject = JsonParser.parseString(jsonString).getAsJsonObject();
         JsonArray appInstancesArrJson = jsonObject.getAsJsonObject("applications")
                 .getAsJsonArray("application");
@@ -28,34 +33,21 @@ public class EurekaJsonParser {
 
         for (int i = 0; i < appInstancesArrJson.size(); i++) {
             JsonObject appJson = appInstancesArrJson.get(i).getAsJsonObject();
-            String serviceName = appJson.get("name").getAsString();
-            List<ServiceInstance> instances = new ArrayList<>();
+            String serviceName = appJson.get("name").getAsString().toLowerCase();
 
             JsonArray instancesArrJson = appJson.getAsJsonArray("instance");
 
             for (int j = 0; j < instancesArrJson.size(); j++) {
                 JsonObject instanceJson = instancesArrJson.get(j).getAsJsonObject();
-
-                String host = instanceJson.get("hostName").getAsString();
+                String instanceId = instanceJson.get("instanceId").getAsString().toLowerCase();
+                String host = instanceJson.get("ipAddr").getAsString();
                 String port = instanceJson.getAsJsonObject("port").get("$").getAsString();
 
-                ServiceInstance instance = new ServiceInstance(serviceName, host, port);
-                instances.add(instance);
+                Service service = new Service(serviceName, instanceId, host, port);
+                serviceList.add(service);
             }
-
-            Service service = new Service(serviceName, instances);
-            serviceList.add(service);
         }
 
-        for (Service service : serviceList) {
-            System.out.println(service);
-        }
-    }
-
-    public static void main(String[] args) throws ParseException, IOException {
-        EurekaAPI api = new EurekaAPI();
-        String ans = api.getAllInstances();
-        EurekaJsonParser parser = new EurekaJsonParser(ans);
-        parser.parse();
+        return serviceList;
     }
 }
