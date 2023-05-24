@@ -1,12 +1,8 @@
 package com.msa.config;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
 
 public class Config {
-
-  public static AWSCredentials awsCredentials = new BasicAWSCredentials("${PRODUCT_SERVICE_AWS_ACCESS_KEY}",
-      "${PRODUCT_SERVICE_AWS_SECRET_KEY}");
-
   public static String bucketName = "aliexpress-replica-product-images";
+  public static Regions region = Regions.EU_CENTRAL_1;
 }
