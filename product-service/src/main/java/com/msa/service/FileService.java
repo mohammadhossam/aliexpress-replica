@@ -1,37 +1,35 @@
 package com.msa.service;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.msa.adapters.AmazonS3FileClientAdapter;
 import com.msa.client.S3Client;
 import com.msa.config.Config;
+import com.msa.interfaces.FileClient;
 
 @Service
 public class FileService {
 
-  private final AmazonS3 s3Client = S3Client.getInstance();
+  private final FileClient fileClient;
+
+  public FileService() {
+    this.fileClient = new AmazonS3FileClientAdapter(S3Client.getInstance());
+  }
 
   public String uploadImage(MultipartFile img) {
     try {
-      ObjectMetadata meta = new ObjectMetadata();
-      meta.setContentLength(img.getInputStream().available());
-      meta.setContentType(img.getContentType());
       String imgFileNameParts[] = img.getOriginalFilename().split("\\.");
-      String key = UUID.randomUUID().toString() + "." + imgFileNameParts[imgFileNameParts.length - 1];
-      PutObjectRequest request = new PutObjectRequest(Config.bucketName, key,
-          img.getInputStream(), meta).withCannedAcl(CannedAccessControlList.PublicRead);
-      s3Client.putObject(request);
-      return s3Client.getUrl(Config.bucketName, key).toString();
-    } catch (Exception e) {
-      System.out.println(e.getMessage());
+      String fileKey = UUID.randomUUID().toString() + "." + imgFileNameParts[imgFileNameParts.length - 1];
+      return fileClient.uploadFile(Config.bucketName, fileKey, img.getInputStream(), img.getContentType(),
+          img.getInputStream().available());
+    } catch (IOException ioException) {
+      ioException.printStackTrace();
     }
-    return "FAILED_UPLOAD";
+    return "";
   }
 
 }
