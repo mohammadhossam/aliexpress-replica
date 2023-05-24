@@ -1,7 +1,5 @@
 package com.msa.client;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.msa.config.Config;
@@ -17,8 +15,7 @@ public class S3Client {
     if (instance == null) {
       instance = AmazonS3ClientBuilder
           .standard()
-          .withCredentials(new AWSStaticCredentialsProvider(Config.awsCredentials))
-          .withRegion(Regions.EU_CENTRAL_1)
+          .withRegion(Config.region)
           .build();
     }
     return instance;
