@@ -1,12 +1,8 @@
-package com.msa.haproxyclient.commands;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+package com.msa.haproxyinterface.commands;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.Map;
 
 public class EnableServerCommand extends HAProxyCommand {
 

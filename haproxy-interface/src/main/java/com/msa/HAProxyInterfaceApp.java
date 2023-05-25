@@ -5,7 +5,7 @@ import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 
-public class HAProxyClientApp {
+public class HAProxyInterfaceApp {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         Controller c = new Controller();

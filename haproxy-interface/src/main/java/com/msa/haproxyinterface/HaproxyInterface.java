@@ -1,8 +1,8 @@
-package com.msa.haproxyclient;
+package com.msa.haproxyinterface;
 
 import com.msa.controller.Controller;
-import com.msa.haproxyclient.commands.HAProxyCommand;
-import com.msa.haproxyclient.commands.HAProxyCommandRegistry;
+import com.msa.haproxyinterface.commands.HAProxyCommand;
+import com.msa.haproxyinterface.commands.HAProxyCommandRegistry;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +11,7 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.logging.Level;
 
-public class HaproxyClient {
+public class HaproxyInterface {
     private Socket socket;
     private InputStream input;
     private OutputStream output;

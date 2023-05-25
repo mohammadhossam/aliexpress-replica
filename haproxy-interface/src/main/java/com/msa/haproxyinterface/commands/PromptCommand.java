@@ -1,4 +1,4 @@
-package com.msa.haproxyclient.commands;
+package com.msa.haproxyinterface.commands;
 
 import java.io.*;
 import java.util.HashMap;

@@ -1,7 +1,4 @@
-package com.msa.haproxyclient.commands;
-
-import com.msa.haproxyclient.commands.AddServerCommand;
-import com.msa.haproxyclient.commands.HAProxyCommand;
+package com.msa.haproxyinterface.commands;
 
 import java.util.HashMap;
 
