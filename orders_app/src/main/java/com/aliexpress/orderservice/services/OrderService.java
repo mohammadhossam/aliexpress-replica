@@ -12,13 +12,19 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class OrderService {
+    @Autowired
+    private RedisTemplate<String, List<Order>> redisTemplate;
+
     @Autowired
     private OrderRepository repo;
     @Value("${rabbitmq.exchangeOrdToInv.name}")
@@ -27,7 +33,7 @@ public class OrderService {
     private String jsonRoutingKey;
     @Autowired
     private RabbitTemplate rabbitTemplate;
-    private static final Logger logger= LoggerFactory.getLogger(OrderService.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     public List<Order> getAllOrders() {
         return repo.findAll();
@@ -38,7 +44,16 @@ public class OrderService {
     }
 
     public List<Order> getUserOrders(String user_id) {
-        return repo.findOrdersByUser_id(user_id);
+        List<Order> res;
+        if (redisTemplate.hasKey(user_id)) {
+            logger.info("Get from cache");
+            res = redisTemplate.opsForValue().get(user_id);
+        } else {
+            logger.info("Get from DB");
+            res = repo.findOrdersByUser_id(user_id);
+            redisTemplate.opsForValue().set(user_id, res);
+        }
+        return res;
     }
 
     public void createOrder(OrderRequest orderRequest) {
@@ -54,8 +69,15 @@ public class OrderService {
     }
 
     public void deleteOrder(String id) {
-        repo.deleteById(id);
+        Order order = repo.deleteOrderById(id);
+        removeFromCache(order.getUser_id());
     }
+
+    public void removeFromCache(String user_id) {
+        if (redisTemplate.hasKey(user_id))
+            redisTemplate.delete(user_id);
+    }
+
     private void mapToOrder(OrderRequest orderRequest, Order order) {
         order.setUser_id(orderRequest.getUser_id());
         order.setStatus(orderRequest.getStatus());
@@ -67,7 +89,9 @@ public class OrderService {
         order.setItems(items);
         order.setTotal_price(orderRequest.getTotal_price());
         repo.save(order);
+        removeFromCache(order.getUser_id());
     }
+
     private Item mapItemDTOToItem(ItemDTO itemDto) {
         Item item = new Item();
         item.setId(itemDto.getId());
@@ -76,6 +100,7 @@ public class OrderService {
         item.setMerchantId(itemDto.getMerchantId());
         return item;
     }
+
     private ItemDTO mapItemToItemDTO(Item item) {
         ItemDTO itemDto = new ItemDTO();
         itemDto.setId(item.getId());
@@ -84,7 +109,8 @@ public class OrderService {
         itemDto.setMerchantId(item.getMerchantId());
         return itemDto;
     }
-    public OrderResponse mapToOrderResponse(Order order){
+
+    public OrderResponse mapToOrderResponse(Order order) {
         OrderResponse orderResponse = new OrderResponse();
         orderResponse.setId(order.getId());
         orderResponse.setDate(order.getDate());
@@ -103,6 +129,7 @@ public class OrderService {
         logger.info(String.format("Sent JSON message => %s", order.toString()));
         rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, order);
     }
+
     @RabbitListener(queues = {"${rabbitmq.jsonQueueInvToOrd.name}"})
     public void orderRollback(OrderResponse orderResponse) {
         deleteOrder(orderResponse.getId());

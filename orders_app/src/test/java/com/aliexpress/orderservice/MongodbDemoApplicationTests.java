@@ -23,8 +23,8 @@ class MongodbDemoApplicationTests {
        order.setTotal_price(200.15);
        order.setDate(new Date());
        List<Item> items= new ArrayList<>();
-       items.add(new Item("dummy",2,40));
-       items.add(new Item("dummy",1,160.15 ));
+//       items.add(new Item("dummy",2,40));
+//       items.add(new Item("dummy",1,160.15 ));
        order.setItems(items);
         repo.save(order);
    }

@@ -4,11 +4,11 @@ import com.aliexpress.orderservice.dto.OrderRequest;
 import com.aliexpress.orderservice.models.*;
 import com.aliexpress.orderservice.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -25,7 +25,6 @@ public class OrderController {
     public Order getOrder(@PathVariable String id) {
         return order_service.getOrder(id);
     }
-
     @GetMapping("/user_orders/{user_id}")
     public List<Order> getUserOrders(@PathVariable String user_id) {
         return order_service.getUserOrders(user_id);

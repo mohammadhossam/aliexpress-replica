@@ -10,5 +10,6 @@ import java.util.UUID;
 public interface OrderRepository extends MongoRepository<Order, String> {
     @Query("{'user_id':?0}")
     List<Order> findOrdersByUser_id(String user_id);
+    Order deleteOrderById(String id);
 
 }
