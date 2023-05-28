@@ -15,6 +15,7 @@ public class UserAuthenticationServiceMessageProducer {
     }
 
     public void send(Message message) {
+        message.generateMessageId();
         rabbitTemplate.convertAndSend("authentication", "authentication.#", message);
     }
 }

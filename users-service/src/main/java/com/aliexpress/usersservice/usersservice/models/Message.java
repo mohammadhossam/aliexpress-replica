@@ -8,24 +8,28 @@ import java.util.UUID;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString
 public class Message {
-    private final String messageId;
-    private final Date messageDate;
-    private final CommandEnum command;
-    private final Map<String, Object> dataMap;
-    private final String source;
+    private  String messageId;
+    private  Date messageDate;
+    private String exchange;
+    private String routingKey;
+    private  CommandEnum command;
+    private  Map<String, Object> dataMap;
+    private  String source;
 
-    public Message(CommandEnum command, Map<String, Object> dataMap, String source) {
+    public Message(CommandEnum command, Map<String, Object> dataMap, String source, String exchange, String routingKey) {
         this.messageId = UUID.randomUUID().toString();
         this.messageDate = new Date();
         this.command = command;
         this.dataMap = dataMap;
+        this.exchange = exchange;
+        this.routingKey = routingKey;
         this.source = source;
     }
 
-    public String getRoutingKey() {
-        return command.getRoutingKey();
+    public void generateMessageId() {
+        this.messageId = UUID.randomUUID().toString();
     }
-
 }

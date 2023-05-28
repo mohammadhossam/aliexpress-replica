@@ -1,6 +1,7 @@
 package com.aliexpress.usersservice.usersservice.controllers;
 
 import com.aliexpress.usersservice.usersservice.models.Buyer;
+import com.aliexpress.usersservice.usersservice.models.Message;
 import com.aliexpress.usersservice.usersservice.repositories.BuyerRepository;
 import com.aliexpress.usersservice.usersservice.services.BuyerService;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +21,8 @@ public class BuyerController {
         return buyerService.updateBuyer(buyerId, buyer);
     }
 
-    @GetMapping("/testMQ/{msg}")
-    public void testMQ(@PathVariable String msg) {
-        buyerService.testMQ(msg);
+    @GetMapping("/testMQ")
+    public void testMQ(@RequestBody Message message) {
+        buyerService.testMQ(message);
     }
 }

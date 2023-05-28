@@ -14,7 +14,7 @@ public class AuthenticationServiceProducer {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void send(Message message) {
-        rabbitTemplate.convertAndSend(message.getRoutingKey(), message.getRoutingKey(), message);
+    public void send(Message message, String exchange, String routingKey) {
+        rabbitTemplate.convertAndSend(exchange, routingKey, message);
     }
 }

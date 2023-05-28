@@ -1,10 +1,7 @@
 package com.aliexpress.authenticationservice.models;
 
 import com.aliexpress.authenticationservice.commands.CommandEnum;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Date;
 import java.util.Map;
@@ -12,24 +9,27 @@ import java.util.UUID;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString
 @Builder
 public class Message {
-    private final String messageId;
-    private final Date messageDate;
-    private final CommandEnum command;
-    private final Map<String, Object> dataMap;
-    private final String source;
+    private  String messageId;
+    private  Date messageDate;
+    private String exchange;
+    private String routingKey;
+    private  CommandEnum command;
+    private  Map<String, Object> dataMap;
+    private  String source;
 
-    public Message(CommandEnum command, Map<String, Object> dataMap, String source) {
+
+    public Message(CommandEnum command, Map<String, Object> dataMap, String source, String exchange, String routingKey ) {
         this.messageId = UUID.randomUUID().toString();
         this.messageDate = new Date();
         this.command = command;
+        this.exchange = exchange;
+        this.routingKey = routingKey;
         this.dataMap = dataMap;
         this.source = source;
     }
 
-    public String getRoutingKey() {
-        return command.getRoutingKey();
-    }
 }

@@ -41,10 +41,7 @@ public class BuyerService {
         return ResponseEntity.ok("Buyer updated successfully");
     }
 
-    public void testMQ(String s) {
-        Map<String, Object> messageMap = new HashMap<>();
-        messageMap.put("payload", s);
-        Message message = new Message(CommandEnum.AuthenticateCommand, messageMap, "UsersService");
+    public void testMQ(Message message) {
         userAuthenticationServiceMessageProducer.send(message);
     }
 

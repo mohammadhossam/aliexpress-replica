@@ -2,19 +2,21 @@ package com.aliexpress.authenticationservice.commands;
 
 import com.aliexpress.authenticationservice.models.Message;
 import com.aliexpress.authenticationservice.publisher.AuthenticationServiceProducer;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
+
+@RequiredArgsConstructor
 public class AuthenticateCommand implements Command{
 
 
-    @Autowired
-    private AuthenticationServiceProducer authenticationServiceProducer;
-
+    private final AuthenticationServiceProducer authenticationServiceProducer;
 
     @Override
     public void execute(Message message) {
@@ -22,9 +24,10 @@ public class AuthenticateCommand implements Command{
         Message responseMessage = new Message(
                 CommandEnum.AuthenticateCommand,
                 new HashMap<>(),
-                "authentication-service"
+                "authentication-service",
+                "authentication",
+                "authentication.#"
         );
-
-
+        authenticationServiceProducer.send(responseMessage, message.getExchange(), message.getRoutingKey());
     }
 }
