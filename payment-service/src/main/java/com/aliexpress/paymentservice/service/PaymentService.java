@@ -87,7 +87,6 @@ public class PaymentService {
     // todo: add valid test bank account
     public Payout payout(PayoutRequest payoutRequest) throws StripeException {
         // get our stripe account
-
         Map<String, Object> payoutParams = new HashMap<>();
         payoutParams.put("amount", (int) (payoutRequest.getAmount() * 100));
         payoutParams.put("currency", "USD");
@@ -103,7 +102,7 @@ public class PaymentService {
         logger.info(String.format("Received Json message => %s", orderResponse.toString()));
         try {
             ChargeRequest chargeRequest = new ChargeRequest();
-            chargeRequest.setAmount(orderResponse.getTotal_price());
+            chargeRequest.setAmount(orderResponse.getTotal_price()+orderResponse.getShipping());
             chargeNewCard(chargeRequest);
         }
         catch (Exception e){

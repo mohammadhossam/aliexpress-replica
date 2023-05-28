@@ -12,13 +12,10 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class OrderService {
@@ -80,14 +77,15 @@ public class OrderService {
 
     private void mapToOrder(OrderRequest orderRequest, Order order) {
         order.setUser_id(orderRequest.getUser_id());
-        order.setStatus(orderRequest.getStatus());
-        order.setDate(orderRequest.getDate());
+        order.setStatus("created");
+        order.setDate(new Date());
         List<Item> items = orderRequest.getItems()
                 .stream()
                 .map(this::mapItemDTOToItem)
                 .toList();
         order.setItems(items);
-        order.setTotal_price(orderRequest.getTotal_price());
+        order.setTotal_price(calculateTotalPrice(items));
+        order.setShipping((new Random().nextInt(3)+1)*5);
         repo.save(order);
         removeFromCache(order.getUser_id());
     }
@@ -100,7 +98,6 @@ public class OrderService {
         item.setMerchantId(itemDto.getMerchantId());
         return item;
     }
-
     private ItemDTO mapItemToItemDTO(Item item) {
         ItemDTO itemDto = new ItemDTO();
         itemDto.setId(item.getId());
@@ -109,6 +106,14 @@ public class OrderService {
         itemDto.setMerchantId(item.getMerchantId());
         return itemDto;
     }
+    private double calculateTotalPrice(List<Item> items)
+    {
+        double totalPrice=0;
+        for(Item item: items){
+            totalPrice+= item.getPrice();
+        }
+        return totalPrice;
+    }
 
     public OrderResponse mapToOrderResponse(Order order) {
         OrderResponse orderResponse = new OrderResponse();
@@ -116,6 +121,7 @@ public class OrderService {
         orderResponse.setDate(order.getDate());
         orderResponse.setUser_id(order.getUser_id());
         orderResponse.setTotal_price(order.getTotal_price());
+        orderResponse.setShipping(order.getShipping());
         orderResponse.setStatus(order.getStatus());
         List<ItemDTO> itemsDto = order.getItems()
                 .stream()
@@ -127,6 +133,7 @@ public class OrderService {
 
     public void sendJsonMessage(OrderResponse order) {
         logger.info(String.format("Sent JSON message => %s", order.toString()));
+
         rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, order);
     }
 
