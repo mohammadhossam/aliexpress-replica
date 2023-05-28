@@ -1,7 +1,7 @@
 package com.aliexpress.inventoryservice.services;
 
-import com.aliexpress.inventoryservice.dto.ItemDTO;
-import com.aliexpress.inventoryservice.dto.OrderResponse;
+import com.aliexpress.commondtos.ItemDTO;
+import com.aliexpress.commondtos.OrderResponse;
 import com.aliexpress.inventoryservice.dto.InventoryRequest;
 import com.aliexpress.inventoryservice.models.Inventory;
 import com.aliexpress.inventoryservice.repositories.InventoryRepository;

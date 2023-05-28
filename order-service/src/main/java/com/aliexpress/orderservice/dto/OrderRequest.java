@@ -1,11 +1,9 @@
 package com.aliexpress.orderservice.dto;
 
-import com.aliexpress.orderservice.models.Item;
+import com.aliexpress.commondtos.ItemDTO;
 import lombok.*;
 
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor

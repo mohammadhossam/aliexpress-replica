@@ -1,4 +1,4 @@
-package com.aliexpress.inventoryservice.dto;
+package com.aliexpress.commondtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
