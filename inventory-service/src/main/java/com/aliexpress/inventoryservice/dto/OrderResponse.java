@@ -17,6 +17,7 @@ public class OrderResponse {
     private String user_id;
     private String status;
     private double total_price;
+    private double shipping;
     private Date date;
     private List<ItemDTO> items;
 
