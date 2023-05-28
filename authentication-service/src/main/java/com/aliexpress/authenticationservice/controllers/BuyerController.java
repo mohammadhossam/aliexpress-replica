@@ -1,10 +1,15 @@
 package com.aliexpress.authenticationservice.controllers;
 
+import com.aliexpress.authenticationservice.consumer.AuthenticationServiceConsumer;
 import com.aliexpress.authenticationservice.dto.*;
 import com.aliexpress.authenticationservice.models.Buyer;
+import com.aliexpress.authenticationservice.publisher.AuthenticationServiceProducer;
 import com.aliexpress.authenticationservice.repositories.BuyerRepository;
 import com.aliexpress.authenticationservice.services.BuyerAuthenticationService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,8 +26,21 @@ public class BuyerController {
     private BuyerRepository buyerRepository;
     private final BuyerAuthenticationService buyerAuthenticationService;
 
+
+    private AuthenticationServiceProducer authenticationServiceProducer;
+
+
+
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test(@RequestParam("message") String message, @RequestParam("exchange") String exchange, @RequestParam("routingKey") String routingKey) {
+        authenticationServiceProducer.sendMessage(message, exchange, routingKey);
+        return ResponseEntity.ok("Message sent to RabbitMQ Successfully");
+    }
+
     @PostMapping("/register")
     public ResponseEntity<BuyerAuthenticationResponse> registerBuyer(@RequestBody BuyerRegistrationRequest registrationRequest) {
+
         return ResponseEntity.ok(buyerAuthenticationService.registerBuyer(registrationRequest));
     }
 
