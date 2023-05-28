@@ -1,8 +1,8 @@
 package com.aliexpress.orderservice.services;
 
-import com.aliexpress.orderservice.dto.ItemDTO;
+import com.aliexpress.commondtos.ItemDTO;
+import com.aliexpress.commondtos.OrderResponse;
 import com.aliexpress.orderservice.dto.OrderRequest;
-import com.aliexpress.orderservice.dto.OrderResponse;
 import com.aliexpress.orderservice.models.Item;
 import com.aliexpress.orderservice.models.Order;
 import com.aliexpress.orderservice.repositories.OrderRepository;

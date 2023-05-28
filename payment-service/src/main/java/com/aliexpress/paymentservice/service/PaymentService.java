@@ -1,7 +1,7 @@
 package com.aliexpress.paymentservice.service;
 
+import com.aliexpress.commondtos.OrderResponse;
 import com.aliexpress.paymentservice.dto.ChargeRequest;
-import com.aliexpress.paymentservice.dto.OrderResponse;
 import com.aliexpress.paymentservice.dto.PayoutRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.stripe.Stripe;
