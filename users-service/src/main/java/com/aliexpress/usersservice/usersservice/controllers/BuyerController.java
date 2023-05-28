@@ -19,4 +19,9 @@ public class BuyerController {
     public ResponseEntity<String> updateBuyer(@PathVariable Integer buyerId, @RequestBody Buyer buyer) {
         return buyerService.updateBuyer(buyerId, buyer);
     }
+
+    @GetMapping("/testMQ/{msg}")
+    public void testMQ(@PathVariable String msg) {
+        buyerService.testMQ(msg);
+    }
 }
