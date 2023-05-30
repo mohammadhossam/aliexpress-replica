@@ -3,6 +3,6 @@ content-type: application/json
 
 {
   "user_id":"batee4",
-  "items": [{"id":"id5","quantity":2,"price":500, "merchantId": 1},{"id":"id","quantity":1,"price":2000, "merchantId": 2}]
+  "items": [{"id":"id7","quantity":1,"price":500, "merchantId": 1},{"id":"id8","quantity":1,"price":2000, "merchantId": 2}]
 }
 

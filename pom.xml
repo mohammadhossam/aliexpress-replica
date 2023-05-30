@@ -19,6 +19,7 @@
         <module>discoveryserver</module>
         <module>authentication-service</module>
         <module>common-dtos</module>
+        <module>common-models</module>
         <module>users-service</module>
         <module>inventory-service</module>
         <module>orders_app</module>

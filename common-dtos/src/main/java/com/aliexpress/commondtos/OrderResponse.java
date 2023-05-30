@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class OrderResponse {
+public class OrderResponse{
     private String id;
     private String user_id;
     private String status;
@@ -20,7 +21,5 @@ public class OrderResponse {
     private double shipping;
     private Date date;
     private List<ItemDTO> items;
-
-
 }
 
