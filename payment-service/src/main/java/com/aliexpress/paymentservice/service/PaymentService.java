@@ -96,8 +96,6 @@ public class PaymentService {
         return payout;
     }
 
-
-    @RabbitListener(queues = {"${rabbitmq.jsonQueueInvToPay.name}"})
     public void consumeOrder(OrderResponse orderResponse) throws JsonProcessingException, StripeException {
         logger.info(String.format("Received Json message => %s", orderResponse.toString()));
         try {

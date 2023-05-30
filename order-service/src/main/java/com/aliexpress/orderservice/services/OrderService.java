@@ -2,10 +2,14 @@ package com.aliexpress.orderservice.services;
 
 import com.aliexpress.commondtos.ItemDTO;
 import com.aliexpress.commondtos.OrderResponse;
+import com.aliexpress.commonmodels.Message;
+import com.aliexpress.commonmodels.commands.CommandEnum;
 import com.aliexpress.orderservice.dto.OrderRequest;
 import com.aliexpress.orderservice.models.Item;
 import com.aliexpress.orderservice.models.Order;
 import com.aliexpress.orderservice.repositories.OrderRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -19,6 +23,7 @@ import java.util.*;
 
 @Service
 public class OrderService {
+    private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
     private RedisTemplate<String, List<Order>> redisTemplate;
 
@@ -85,7 +90,7 @@ public class OrderService {
                 .toList();
         order.setItems(items);
         order.setTotal_price(calculateTotalPrice(items));
-        order.setShipping((new Random().nextInt(3)+1)*5);
+        order.setShipping((new Random().nextInt(3) + 1) * 5);
         repo.save(order);
         removeFromCache(order.getUser_id());
     }
@@ -98,6 +103,7 @@ public class OrderService {
         item.setMerchantId(itemDto.getMerchantId());
         return item;
     }
+
     private ItemDTO mapItemToItemDTO(Item item) {
         ItemDTO itemDto = new ItemDTO();
         itemDto.setId(item.getId());
@@ -106,11 +112,11 @@ public class OrderService {
         itemDto.setMerchantId(item.getMerchantId());
         return itemDto;
     }
-    private double calculateTotalPrice(List<Item> items)
-    {
-        double totalPrice=0;
-        for(Item item: items){
-            totalPrice+= item.getPrice();
+
+    private double calculateTotalPrice(List<Item> items) {
+        double totalPrice = 0;
+        for (Item item : items) {
+            totalPrice += item.getPrice();
         }
         return totalPrice;
     }
@@ -132,9 +138,26 @@ public class OrderService {
     }
 
     public void sendJsonMessage(OrderResponse order) {
-        logger.info(String.format("Sent JSON message => %s", order.toString()));
+        try {
+            logger.info(String.format("Sent JSON message => %s", order.toString()));
+            String json = objectMapper.writeValueAsString(order);
 
-        rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, order);
+            HashMap<String, Object> dataMap = new HashMap<>();
+            dataMap.put("OrderResponse", json);
+            Message message = Message.builder()
+                    .messageId(UUID.randomUUID().toString())
+                    .routingKey(jsonRoutingKey)
+                    .messageDate(new Date())
+                    .command(CommandEnum.DecrementInventoryCommand)
+                    .source("orders")
+                    .dataMap(dataMap)
+                    .exchange(exchangeName)
+                    .build();
+            rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, message);
+        } catch (Exception e) {
+            logger.info("Error " + e.getMessage());
+        }
+
     }
 
     @RabbitListener(queues = {"${rabbitmq.jsonQueueInvToOrd.name}"})
