@@ -61,7 +61,6 @@ public class RabbitMQConfig {
         return new Queue(jsonQueueNameInvToPay);
     }
 
-
     //Binding between and exchange using routing key
     @Bean
     public Binding jsonBindingInvToPay() {
@@ -69,7 +68,4 @@ public class RabbitMQConfig {
                 to(exchangeInv()).
                 with(jsonRoutingKeyInvToPay);
     }
-
-
-
 }

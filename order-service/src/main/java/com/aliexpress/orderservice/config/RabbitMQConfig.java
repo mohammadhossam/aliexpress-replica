@@ -19,7 +19,6 @@ public class RabbitMQConfig {
     private String jsonRoutingKey;
 
     //Spring bean for rabbitmq queue
-
     @Bean
     public Queue jsonQueue() {
         return new Queue(jsonQueueName);
@@ -50,5 +49,4 @@ public class RabbitMQConfig {
         rabbitTemplate.setMessageConverter(converter());
         return rabbitTemplate;
     }
-
 }

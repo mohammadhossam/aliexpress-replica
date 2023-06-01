@@ -8,19 +8,16 @@ import com.aliexpress.orderservice.dto.OrderRequest;
 import com.aliexpress.orderservice.models.Item;
 import com.aliexpress.orderservice.models.Order;
 import com.aliexpress.orderservice.repositories.OrderRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 
+@Slf4j
 @Service
 public class OrderService {
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -35,7 +32,6 @@ public class OrderService {
     private String jsonRoutingKey;
     @Autowired
     private RabbitTemplate rabbitTemplate;
-    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     public List<Order> getAllOrders() {
         return repo.findAll();
@@ -48,10 +44,10 @@ public class OrderService {
     public List<Order> getUserOrders(String user_id) {
         List<Order> res;
         if (redisTemplate.hasKey(user_id)) {
-            logger.info("Get from cache");
+            log.info(String.format("Get user: %s orders from cache",user_id));
             res = redisTemplate.opsForValue().get(user_id);
         } else {
-            logger.info("Get from DB");
+            log.info(String.format("Get user: %s orders from DB",user_id));
             res = repo.findOrdersByUser_id(user_id);
             redisTemplate.opsForValue().set(user_id, res);
         }
@@ -143,9 +139,7 @@ public class OrderService {
 
     public void sendJsonMessage(OrderResponse order) {
         try {
-            logger.info(String.format("Sent JSON message => %s", order.toString()));
             String json = objectMapper.writeValueAsString(order);
-
             HashMap<String, Object> dataMap = new HashMap<>();
             dataMap.put("OrderResponse", json);
             Message message = Message.builder()
@@ -158,10 +152,9 @@ public class OrderService {
                     .exchange(exchangeName)
                     .build();
             rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, message);
+            log.info(String.format("Sent JSON message to inventory => %s", order.toString()));
         } catch (Exception e) {
-            logger.info("Error " + e.getMessage());
+            log.info("Error: " + e.getMessage());
         }
-
     }
-
 }

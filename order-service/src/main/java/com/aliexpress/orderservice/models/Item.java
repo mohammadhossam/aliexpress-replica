@@ -3,7 +3,6 @@ package com.aliexpress.orderservice.models;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 @Getter
 @Setter

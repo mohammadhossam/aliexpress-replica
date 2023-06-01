@@ -6,13 +6,12 @@ import com.aliexpress.commonmodels.commands.Command;
 import com.aliexpress.inventoryservice.services.InventoryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @AllArgsConstructor
 public class IncrementInventoryCommand implements Command {
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final Logger logger = LoggerFactory.getLogger(DecrementInventoryCommand.class);
     private final InventoryService inventoryService;
 
     @Override
@@ -21,7 +20,7 @@ public class IncrementInventoryCommand implements Command {
             OrderResponse orderResponse = objectMapper.readValue((String) message.getDataMap().get("OrderResponse"), OrderResponse.class);
             inventoryService.rollbackOrder(orderResponse);
         } catch (Exception e) {
-            logger.info("Error" + e.getMessage());
+            log.info("Error executing IncrementInventoryCommand: " + e.getMessage());
         }
 
     }
