@@ -3,13 +3,17 @@ package com.msa.service;
 import com.msa.dto.CreateProductRequest;
 import com.msa.dto.ProductResponse;
 import com.msa.dto.UpdateProductRequest;
+import com.msa.model.Command;
+import com.msa.model.Message;
 import com.msa.model.Product;
 import com.msa.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +21,7 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final MessageService messageService;
 
     public ProductResponse createProduct(CreateProductRequest createProductRequest) {
         Product product = Product.builder()
@@ -30,6 +35,13 @@ public class ProductService {
                 .build();
 
         Product createdProduct = productRepository.save(product);
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("productId", createdProduct.getId());
+        payload.put("quantity", createProductRequest.getInitialStock());
+        Message message = new Message(Command.CreateInventoryCommand, payload, "ProductService", "product-service",
+                "product");
+        messageService.publishMessage(message);
 
         return mapFromProductToProductResponse(createdProduct);
     }
@@ -78,11 +90,19 @@ public class ProductService {
     }
 
     public ProductResponse deleteProduct(String id) {
-        return productRepository.findById(id)
+        ProductResponse deletedProdcut = productRepository.findById(id)
                 .map(product -> {
                     productRepository.delete(product);
                     return mapFromProductToProductResponse(product);
                 })
                 .orElse(null);
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("productId", deletedProdcut.getId());
+        Message message = new Message(Command.CreateInventoryCommand, payload, "ProductService", "product-service",
+                "product");
+        messageService.publishMessage(message);
+
+        return deletedProdcut;
     }
 }

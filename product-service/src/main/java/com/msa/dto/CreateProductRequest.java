@@ -19,4 +19,5 @@ public class CreateProductRequest {
     private String merchantId;
     private String categoryName;
     private boolean isShippedForFree;
+    private int initialStock;
 }
