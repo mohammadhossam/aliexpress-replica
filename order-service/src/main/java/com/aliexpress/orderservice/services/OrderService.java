@@ -160,9 +160,8 @@ public class OrderService {
 
     }
 
-    @RabbitListener(queues = {"${rabbitmq.jsonQueueInvToOrd.name}"})
-    public void orderRollback(OrderResponse orderResponse) {
-        deleteOrder(orderResponse.getId());
-    }
-
+//    @RabbitListener(queues = {"${rabbitmq.jsonQueueInvToOrd.name}"})
+//    public void orderRollback(OrderResponse orderResponse) {
+//        deleteOrder(orderResponse.getId());
+//    }
 }

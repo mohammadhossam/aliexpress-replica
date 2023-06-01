@@ -5,7 +5,8 @@ public enum CommandEnum {
     IncrementInventoryCommand("com.aliexpress.inventoryservice.models.commands.IncrementInventoryCommand"),
     CreateInventoryCommand("com.aliexpress.inventoryservice.models.commands.CreateInventoryCommand"),
     DeleteInventoryCommand("com.aliexpress.inventoryservice.models.commands.DeleteInventoryCommand"),
-    PayToMerchantCommand("com.aliexpress.paymentservice.models.commands.PayToMerchantCommand");
+    PayToMerchantCommand("com.aliexpress.paymentservice.models.commands.PayToMerchantCommand"),
+    DeleteOrderCommand("com.aliexpress.orderservice.models.commands.DeleteOrderCommand");
     private final String name;
 
     CommandEnum(String name) {
