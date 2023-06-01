@@ -20,7 +20,7 @@ public class ApplicationConfig {
     private final BuyerRepository buyerRepository;
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> buyerRepository.findBuyerByEmail(username)
+        return id -> buyerRepository.findBuyerById(Integer.parseInt(id))
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 

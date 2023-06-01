@@ -22,13 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BuyerController {
 
-    @Autowired
     private final BuyerAuthenticationService buyerAuthenticationService;
-
-//    @GetMapping("/test")
-//    public ResponseEntity<String> test(@RequestParam("message") String message, @RequestParam("exchange") String exchange, @RequestParam("routingKey") String routingKey) {
-//        return ResponseEntity.ok("Message sent to RabbitMQ Successfully");
-//    }
 
     @PostMapping("/register")
     public ResponseEntity<BuyerAuthenticationResponse> registerBuyer(@RequestBody BuyerRegistrationRequest registrationRequest) {

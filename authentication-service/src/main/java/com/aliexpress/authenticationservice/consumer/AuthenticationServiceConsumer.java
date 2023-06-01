@@ -25,7 +25,8 @@ public class AuthenticationServiceConsumer {
     @RabbitListener(queues = "user-authentication-service-queue")
     public void processMessage(Message message) {
         LOGGER.info("Message received from:" + message.getExchange());
-        String commandName = message.getCommand().getName();
+        String commandName = String.valueOf(message.getCommand());
+        LOGGER.info("Command is {}", commandName);
         try {
             Command commandInstance = applicationContext.getBean(commandName, Command.class);
             commandInstance.execute(message);

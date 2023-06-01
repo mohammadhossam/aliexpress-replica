@@ -251,3 +251,28 @@ EXCEPTION
 END;
 $$;
 
+create procedure find_buyer_by_id(IN search_id integer, OUT id integer, OUT first_name character varying, OUT last_name character varying, OUT email character varying, OUT password character varying, OUT phone_number character varying, OUT birthdate character varying, OUT address character varying, OUT role character varying)
+    language plpgsql
+as
+$$
+    #variable_conflict use_variable
+begin
+    select buyer.id, buyer.first_name, buyer.last_name, buyer.email, buyer.password, buyer.phone_number, buyer.birthdate, buyer.address, buyer.role
+    into id, first_name, last_name, email, password, phone_number, birthdate, address, role
+    from buyer
+    where buyer.id = search_id;
+end
+$$;
+
+create procedure find_buyer_by_email(IN search_email character varying, OUT id integer, OUT first_name character varying, OUT last_name character varying, OUT email character varying, OUT password character varying, OUT phone_number character varying, OUT birthdate character varying, OUT address character varying, OUT role character varying)
+    language plpgsql
+as
+$$
+    #variable_conflict use_variable
+begin
+    select buyer.id, buyer.first_name, buyer.last_name, buyer.email, buyer.password, buyer.phone_number, buyer.birthdate, buyer.address, buyer.role
+    into id, first_name, last_name, email, password, phone_number, birthdate, address, role
+    from buyer
+    where buyer.email = search_email;
+end
+$$;
