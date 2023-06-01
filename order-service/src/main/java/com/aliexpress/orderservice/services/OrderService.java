@@ -69,7 +69,8 @@ public class OrderService {
 
     public void deleteOrder(String id) {
         Order order = repo.deleteOrderById(id);
-        removeFromCache(order.getUser_id());
+        if(order!=null)
+            removeFromCache(order.getUser_id());
     }
 
     public void removeFromCache(String user_id) {
@@ -163,8 +164,4 @@ public class OrderService {
 
     }
 
-//    @RabbitListener(queues = {"${rabbitmq.jsonQueueInvToOrd.name}"})
-//    public void orderRollback(OrderResponse orderResponse) {
-//        deleteOrder(orderResponse.getId());
-//    }
 }
