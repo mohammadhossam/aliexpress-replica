@@ -135,17 +135,36 @@ public class InventoryService {
 
     }
 
+
     public void sendJsonMessage(Message message, String exchangeName, String jsonRoutingKey) {
         logger.info(String.format("Sent JSON message => %s", message.toString()));
         rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, message);
     }
     public void sendJsonMessage(OrderResponse orderResponse, String exchangeName, String jsonRoutingKey) {
-        logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
-        rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, orderResponse);
+//        logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
+//        rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, orderResponse);
+        try {
+            logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
+            String json = objectMapper.writeValueAsString(orderResponse);
+
+            HashMap<String, Object> dataMap = new HashMap<>();
+            dataMap.put("OrderResponse", json);
+            Message message = Message.builder()
+                    .messageId(UUID.randomUUID().toString())
+                    .routingKey(jsonRoutingKey)
+                    .messageDate(new Date())
+                    .command(CommandEnum.DeleteOrderCommand)
+                    .source("inventory")
+                    .dataMap(dataMap)
+                    .exchange(exchangeName)
+                    .build();
+            rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, message);
+        } catch (Exception e) {
+            logger.info("Error " + e.getMessage());
+        }
     }
 
-    @RabbitListener(queues = {"${rabbitmq.jsonQueuePayToInv.name}"})
-    public void orderRollback(OrderResponse orderResponse) {
+    public void rollbackOrder(OrderResponse orderResponse) {
         incrementProducts(mapItemsDTOToIDs(orderResponse.getItems()),
                 mapItemsDTOToAmounts(orderResponse.getItems()));
         sendJsonMessage(orderResponse, exchangeNameInvToOrd, jsonRoutingKeyInvToOrd);
