@@ -23,5 +23,5 @@ public class Product {
     private String merchantId;
     private String categoryName;
     private boolean isShippedForFree;
-    private BigDecimal price;
+    private double price;
 }

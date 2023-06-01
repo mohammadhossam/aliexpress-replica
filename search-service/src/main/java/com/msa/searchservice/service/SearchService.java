@@ -15,8 +15,8 @@ import java.util.List;
 public class SearchService {
     private final SearchRepository searchRepository;
 
-    public List<ProductResponse> searchProduct(String text){
-        List<Product> products = this.searchRepository.searchProduct(text);
+    public List<ProductResponse> searchProduct(String text, double minPrice, double maxPrice){
+        List<Product> products = this.searchRepository.searchProduct(text, minPrice, maxPrice);
 
         return products.stream().map(this::mapTpProductResponse).toList();
 

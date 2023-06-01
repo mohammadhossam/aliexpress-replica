@@ -10,36 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public interface SearchRepository extends MongoRepository<Product, String> {
-//    @Query("[\n" +
-//            "  {\n" +
-//            "    $search: {\n" +
-//            "      index: \"search_index\",\n" +
-//            "      text: {\n" +
-//            "        query: ?0,\n" +
-//            "        path: {\n" +
-//            "          wildcard: \"*\"\n" +
-//            "        },\n" +
-//            "        fuzzy: {\n" +
-//            "          maxEdits: 2\n" +
-//            "        }\n" +
-//            "      }\n" +
-//            "    }\n" +
-//            "  }\n" +
-//            "]")
-    @Aggregation(pipeline = {"\n" +
-            "  {\n" +
-            "    $search: {\n" +
-            "      index: \"search_index\",\n" +
-            "      text: {\n" +
-            "        query: ?0,\n" +
-            "        path: {\n" +
-            "          wildcard: \"*\"\n" +
-            "        },\n" +
-            "        fuzzy: {\n" +
-            "          maxEdits: 2\n" +
-            "        }\n" +
-            "      }\n" +
-            "    }\n" +
-            "  }\n" })
-    List<Product> searchProduct(String text);
+    @Aggregation(pipeline = {
+            "{$search: {index: \"search_index\", text:  {query:  ?0, path:  {wildcard:  \"*\"}, fuzzy:  {maxEdits:  2}}}}",
+            "{$match: {\"price\":  {\"$gte\":  ?1, \"$lte\":  ?2}}}"
+    })
+    List<Product> searchProduct(String text, double minPrice, double maxPrice);
 }
