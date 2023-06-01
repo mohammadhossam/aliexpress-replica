@@ -9,6 +9,9 @@ import com.msa.model.Product;
 import com.msa.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -66,12 +69,14 @@ public class ProductService {
                 .build();
     }
 
+    @Cacheable(value = "products", key = "#id")
     public ProductResponse getProduct(String id) {
         return productRepository.findById(id)
                 .map(this::mapFromProductToProductResponse)
                 .orElse(null);
     }
 
+    @CachePut(value = "products", key = "#id")
     public ProductResponse updateProduct(String id, UpdateProductRequest updateProductRequest) {
         return productRepository.findById(id)
                 .map(product -> {
@@ -89,6 +94,7 @@ public class ProductService {
                 .orElse(null);
     }
 
+    @CacheEvict(value = "products", key = "#id")
     public ProductResponse deleteProduct(String id) {
         ProductResponse deletedProdcut = productRepository.findById(id)
                 .map(product -> {
