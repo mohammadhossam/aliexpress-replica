@@ -7,9 +7,11 @@ import com.aliexpress.orderservice.services.OrderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component("DeleteOrderCommand")
 public class DeleteOrderCommand implements Command {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final OrderService orderService;
