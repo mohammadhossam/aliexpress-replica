@@ -59,15 +59,12 @@ public class OrderService {
     }
 
     public void createOrder(OrderRequest orderRequest) {
-        Order order = new Order();
-        order.setId(UUID.randomUUID().toString());
-        mapToOrder(orderRequest, order);
+        Order order=mapToOrder(orderRequest, UUID.randomUUID().toString());
         sendJsonMessage(mapToOrderResponse(order));
     }
 
-    public void updateOrder(String id, OrderRequest orderRequest) {
-        Order updatedOrder = new Order();
-        mapToOrder(orderRequest, updatedOrder);
+    public void updateOrder(String orderId, OrderRequest orderRequest) {
+        mapToOrder(orderRequest, orderId);
     }
 
     public void deleteOrder(String id) {
@@ -80,36 +77,41 @@ public class OrderService {
             redisTemplate.delete(user_id);
     }
 
-    private void mapToOrder(OrderRequest orderRequest, Order order) {
-        order.setUser_id(orderRequest.getUser_id());
-        order.setStatus("created");
-        order.setDate(new Date());
+    private Order mapToOrder(OrderRequest orderRequest, String orderId) {
         List<Item> items = orderRequest.getItems()
                 .stream()
                 .map(this::mapItemDTOToItem)
                 .toList();
-        order.setItems(items);
-        order.setTotal_price(calculateTotalPrice(items));
-        order.setShipping((new Random().nextInt(3) + 1) * 5);
+        Order order = Order.builder()
+                .id(orderId)
+                .user_id(orderRequest.getUser_id())
+                .status("created").date(new Date())
+                .items(items)
+                .total_price(calculateTotalPrice(items))
+                .shipping((new Random().nextInt(3) + 1) * 5)
+                .build();
         repo.save(order);
         removeFromCache(order.getUser_id());
+        return order;
     }
 
     private Item mapItemDTOToItem(ItemDTO itemDto) {
-        Item item = new Item();
-        item.setId(itemDto.getId());
-        item.setPrice(itemDto.getPrice());
-        item.setQuantity(itemDto.getQuantity());
-        item.setMerchantId(itemDto.getMerchantId());
+        Item item = Item.builder()
+                .id(itemDto.getId())
+                .merchantId(itemDto.getMerchantId())
+                .price(itemDto.getPrice())
+                .quantity(itemDto.getQuantity())
+                .build();
         return item;
     }
 
     private ItemDTO mapItemToItemDTO(Item item) {
-        ItemDTO itemDto = new ItemDTO();
-        itemDto.setId(item.getId());
-        itemDto.setPrice(item.getPrice());
-        itemDto.setQuantity(item.getQuantity());
-        itemDto.setMerchantId(item.getMerchantId());
+        ItemDTO itemDto = ItemDTO.builder()
+                .id(item.getId())
+                .merchantId(item.getMerchantId())
+                .price(item.getPrice())
+                .quantity(item.getQuantity())
+                .build();
         return itemDto;
     }
 
@@ -122,18 +124,19 @@ public class OrderService {
     }
 
     public OrderResponse mapToOrderResponse(Order order) {
-        OrderResponse orderResponse = new OrderResponse();
-        orderResponse.setId(order.getId());
-        orderResponse.setDate(order.getDate());
-        orderResponse.setUser_id(order.getUser_id());
-        orderResponse.setTotal_price(order.getTotal_price());
-        orderResponse.setShipping(order.getShipping());
-        orderResponse.setStatus(order.getStatus());
         List<ItemDTO> itemsDto = order.getItems()
                 .stream()
                 .map(this::mapItemToItemDTO)
                 .toList();
-        orderResponse.setItems(itemsDto);
+        OrderResponse orderResponse = OrderResponse.builder()
+                .id(order.getId())
+                .date(new Date())
+                .items(itemsDto)
+                .shipping(order.getShipping())
+                .status(order.getStatus())
+                .total_price(order.getTotal_price())
+                .user_id(order.getUser_id())
+                .build();
         return orderResponse;
     }
 
