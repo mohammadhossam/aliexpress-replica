@@ -1,7 +1,6 @@
 package com.aliexpress.usersservice.usersservice.controllers;
 
 import com.aliexpress.usersservice.usersservice.models.Merchant;
-import com.aliexpress.usersservice.usersservice.repositories.MerchantRepository;
 import com.aliexpress.usersservice.usersservice.services.MerchantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
