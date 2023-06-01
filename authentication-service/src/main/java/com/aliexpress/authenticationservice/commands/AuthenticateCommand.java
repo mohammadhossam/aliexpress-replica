@@ -13,6 +13,7 @@ import java.util.Map;
 
 
 @RequiredArgsConstructor
+@Component("AuthenticateCommand")
 public class AuthenticateCommand implements Command{
 
 
