@@ -13,7 +13,10 @@ public class CreateInventoryCommand implements Command {
     public void execute(Message message) {
         String productId= (String) message.getDataMap().get("productId");
         int productQuantity= (int) message.getDataMap().get("productQuantity");
-        InventoryRequest request= new InventoryRequest(productId, productQuantity);
+        InventoryRequest request= InventoryRequest.builder()
+                .id(productId)
+                .quantity(productQuantity)
+                .build();
         inventoryService.createProduct(request);
     }
 }

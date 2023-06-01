@@ -55,7 +55,7 @@ public class PaymentService {
 
     public Charge chargeNewCard(ChargeRequest chargeRequest) throws StripeException {
         Map<String, Object> card = new HashMap<>();
-        card.put("number", "gego");
+        card.put("number", "4242424242424242");
         card.put("exp_month", 5);
         card.put("exp_year", 2024);
         card.put("cvc", "314");
@@ -105,8 +105,9 @@ public class PaymentService {
     public void consumeOrder(OrderResponse orderResponse) throws JsonProcessingException, StripeException {
         logger.info(String.format("Received Json message => %s", orderResponse.toString()));
         try {
-            ChargeRequest chargeRequest = new ChargeRequest();
-            chargeRequest.setAmount(orderResponse.getTotal_price()+orderResponse.getShipping());
+            ChargeRequest chargeRequest = ChargeRequest.builder()
+                    .amount(orderResponse.getTotal_price()+orderResponse.getShipping())
+                    .build();
             chargeNewCard(chargeRequest);
         }
         catch (Exception e){
@@ -135,7 +136,6 @@ public class PaymentService {
 
             HashMap<String, Object> dataMap = new HashMap<>();
             dataMap.put("OrderResponse", json);
-            logger.info("gego is testing: "+ CommandEnum.IncrementInventoryCommand.getName());
             Message message = Message.builder()
                     .messageId(UUID.randomUUID().toString())
                     .routingKey(jsonRoutingKey)
