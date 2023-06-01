@@ -10,13 +10,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class RabbitMQInvToOrdConfig {
+public class RabbitMQConfig {
+    @Value("${rabbitmq.exchangeInv.name}")
+    private String exchangeNameInv;
+
     @Value("${rabbitmq.jsonQueueInvToOrd.name}")
     private String jsonQueueNameInvToOrd;
-    @Value("${rabbitmq.exchangeInvToOrd.name}")
-    private String exchangeNameInvToOrd;
     @Value("${rabbitmq.jsonBindingInvToOrd.routingKey}")
     private String jsonRoutingKeyInvToOrd;
+
+    @Value("${rabbitmq.jsonQueueInvToPay.name}")
+    private String jsonQueueNameInvToPay;
+    @Value("${rabbitmq.jsonBindingInvToPay.routingKey}")
+    private String jsonRoutingKeyInvToPay;
+
+
     @Bean
     public Queue jsonQueueInvToOrd() {
         return new Queue(jsonQueueNameInvToOrd);
@@ -24,15 +32,15 @@ public class RabbitMQInvToOrdConfig {
 
     //Spring bean for rabbitmq exchange
     @Bean
-    public TopicExchange exchangeInvToOrd() {
-        return new TopicExchange(exchangeNameInvToOrd);
+    public TopicExchange exchangeInv() {
+        return new TopicExchange(exchangeNameInv);
     }
 
     //Binding between and exchange using routing key
     @Bean
     public Binding jsonBindingInvToOrd() {
         return BindingBuilder.bind(jsonQueueInvToOrd()).
-                to(exchangeInvToOrd()).
+                to(exchangeInv()).
                 with(jsonRoutingKeyInvToOrd);
     }
 
@@ -47,5 +55,21 @@ public class RabbitMQInvToOrdConfig {
         rabbitTemplate.setMessageConverter(converter());
         return rabbitTemplate;
     }
+
+    @Bean
+    public Queue jsonQueueInvToPay() {
+        return new Queue(jsonQueueNameInvToPay);
+    }
+
+
+    //Binding between and exchange using routing key
+    @Bean
+    public Binding jsonBindingInvToPay() {
+        return BindingBuilder.bind(jsonQueueInvToPay()).
+                to(exchangeInv()).
+                with(jsonRoutingKeyInvToPay);
+    }
+
+
 
 }

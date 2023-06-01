@@ -14,7 +14,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,12 +28,10 @@ public class InventoryService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final InventoryRepository inventoryRepository;
-    @Value("${rabbitmq.exchangeInvToPay.name}")
-    private String exchangeNameInvToPay;
+    @Value("${rabbitmq.exchangeInv.name}")
+    private String exchangeNameInv;
     @Value("${rabbitmq.jsonBindingInvToPay.routingKey}")
     private String jsonRoutingKeyInvToPay;
-    @Value("${rabbitmq.exchangeInvToOrd.name}")
-    private String exchangeNameInvToOrd;
     @Value("${rabbitmq.jsonBindingInvToOrd.routingKey}")
     private String jsonRoutingKeyInvToOrd;
     @Autowired
@@ -110,7 +107,7 @@ public class InventoryService {
                     mapItemsDTOToAmounts(orderResponse.getItems()));
             logger.info("Stock update successful!");
         } catch (Exception e) {
-            sendJsonMessage(orderResponse, exchangeNameInvToOrd, jsonRoutingKeyInvToOrd);
+            sendJsonMessage(orderResponse, exchangeNameInv, jsonRoutingKeyInvToOrd);
             return;
         }
         logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
@@ -126,9 +123,9 @@ public class InventoryService {
                     .command(CommandEnum.PayToMerchantCommand)
                     .source("inventory")
                     .dataMap(dataMap)
-                    .exchange(exchangeNameInvToPay)
+                    .exchange(exchangeNameInv)
                     .build();
-            sendJsonMessage(message, exchangeNameInvToPay, jsonRoutingKeyInvToPay);
+            sendJsonMessage(message, exchangeNameInv, jsonRoutingKeyInvToPay);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -167,6 +164,6 @@ public class InventoryService {
     public void rollbackOrder(OrderResponse orderResponse) {
         incrementProducts(mapItemsDTOToIDs(orderResponse.getItems()),
                 mapItemsDTOToAmounts(orderResponse.getItems()));
-        sendJsonMessage(orderResponse, exchangeNameInvToOrd, jsonRoutingKeyInvToOrd);
+        sendJsonMessage(orderResponse, exchangeNameInv, jsonRoutingKeyInvToOrd);
     }
 }
