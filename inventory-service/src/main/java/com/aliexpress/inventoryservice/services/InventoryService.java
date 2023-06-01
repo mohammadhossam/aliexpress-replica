@@ -42,33 +42,30 @@ public class InventoryService {
     private static final Logger logger = LoggerFactory.getLogger(InventoryService.class);
 
 
-    @SneakyThrows
     public Inventory createProduct(InventoryRequest request) {
-        log.info("Checking Inventory");
-        inventoryRepository.createInventory(request.getId(), request.getQuantity());
-        return inventoryRepository.findById(request.getId()).get();
+        String id= request.getId();
+        int quantity= request.getQuantity();
+        inventoryRepository.createInventory(id, quantity);
+        log.info(String.format("Inventory for product: %s is created with quantity: %d", id, quantity));
+        return inventoryRepository.findById(id).get();
     }
 
-    @SneakyThrows
     public int getProductData(String id) {
         log.info("Get Inventory");
         return inventoryRepository.getInventoryById(id);
     }
 
-    @SneakyThrows
     public Inventory updateProduct(String id, InventoryRequest request) {
         log.info("Update Inventory");
         inventoryRepository.updateInventory(id, request.getQuantity());
         return inventoryRepository.findById(id).get();
     }
 
-    @SneakyThrows
     public void deleteProduct(String id) {
-        log.info("Delete Inventory");
         inventoryRepository.deleteInventory(id);
+        log.info(String.format("Inventory for product: %s is deleted", id));
     }
 
-    @SneakyThrows
     public Inventory decrementStock(String id, InventoryRequest request) {
         log.info("Decrement stock");
         inventoryRepository.decrementStock(id, request.getQuantity());
