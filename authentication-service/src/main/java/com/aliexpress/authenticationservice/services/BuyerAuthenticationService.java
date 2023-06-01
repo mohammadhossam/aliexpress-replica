@@ -22,8 +22,7 @@ public class BuyerAuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
 
     public BuyerAuthenticationResponse registerBuyer(BuyerRegistrationRequest registrationRequest) {

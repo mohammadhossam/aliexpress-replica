@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,21 +18,17 @@ import org.springframework.stereotype.Component;
 public class AuthenticationServiceConsumer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationServiceConsumer.class);
-
     private final BuyerAuthenticationService buyerAuthenticationService;
-    private AuthenticateCommand authenticateCommand;
     private final AuthenticationServiceProducer authenticationServiceProducer;
-
+    private final ApplicationContext applicationContext;
 
     @RabbitListener(queues = "user-authentication-service-queue")
     public void processMessage(Message message) {
         LOGGER.info("Message received from:" + message.getExchange());
-//        String commandName = message.getCommand().getName();
+        String commandName = message.getCommand().getName();
         try {
-//            Class<?> commandClass = Class.forName(commandName);
-//            Command commandInstance = (Command) commandClass.getDeclaredConstructor().newInstance();
-            authenticateCommand = new AuthenticateCommand(authenticationServiceProducer);
-            authenticateCommand.execute(message);
+            Command commandInstance = applicationContext.getBean(commandName, Command.class);
+            commandInstance.execute(message);
             LOGGER.info("Received message as specific class: {}", message);
         } catch (Exception e) {
             LOGGER.error("Exception occurred while processing message: {} ", message, e);
