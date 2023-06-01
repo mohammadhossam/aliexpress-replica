@@ -18,13 +18,9 @@ import org.springframework.stereotype.Component;
 public class AuthenticationServiceConsumer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationServiceConsumer.class);
-
     private final BuyerAuthenticationService buyerAuthenticationService;
-    private AuthenticateCommand authenticateCommand;
     private final AuthenticationServiceProducer authenticationServiceProducer;
-
-    @Autowired
-    private ApplicationContext applicationContext;
+    private final ApplicationContext applicationContext;
 
     @RabbitListener(queues = "user-authentication-service-queue")
     public void processMessage(Message message) {
@@ -32,10 +28,8 @@ public class AuthenticationServiceConsumer {
         String commandName = String.valueOf(message.getCommand());
         LOGGER.info("Command is {}", commandName);
         try {
-//            Class<?> commandClass = Class.forName("com.aliexpress.authenticationservice.commands." + commandName);
-            Command authenticateCommand = applicationContext.getBean(commandName, Command.class);
-//            authenticateCommand = new AuthenticateCommand(authenticationServiceProducer);
-            authenticateCommand.execute(message);
+            Command commandInstance = applicationContext.getBean(commandName, Command.class);
+            commandInstance.execute(message);
             LOGGER.info("Received message as specific class: {}", message);
         } catch (Exception e) {
             LOGGER.error("Exception occurred while processing message: {} ", message, e);
