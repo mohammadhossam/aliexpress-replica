@@ -21,6 +21,27 @@ public class BuyerController {
         return buyerService.updateBuyer(buyerId, buyer);
     }
 
+//    public ResponseEntity<String> updateBuyer(@PathVariable Integer buyerId, @RequestBody Buyer buyer) {
+//
+//        CompletableFuture<Message> authResponseFuture = CompletableFuture.supplyAsync(() ->
+//                rabbitTemplate.convertSendAndReceive("authExchange", "authQueue", authRequest)
+//        );
+//
+//        authResponseFuture.thenAccept(authResponse -> {
+//            if (authResponse != null && authResponse.isAuthenticated()) {
+//                CompletableFuture<Message> validationResponseFuture = CompletableFuture.supplyAsync(() ->
+//                        rabbitTemplate.convertSendAndReceive("productExchange", "productQueue", validationRequest)
+//                );
+//
+//                validationResponseFuture.thenAccept(validationResponse -> {
+//                    if (validationResponse != null && validationResponse.isValidProduct()) {
+//                        payment_service.chargeNewCard(paymentRequest);
+//                    }
+//                });
+//            }
+//        });
+//    }
+
     @GetMapping("/testMQ")
     public void testMQ(@RequestBody Message message) {
         buyerService.testMQ(message);
