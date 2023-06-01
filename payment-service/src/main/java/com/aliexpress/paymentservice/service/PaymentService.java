@@ -1,9 +1,12 @@
 package com.aliexpress.paymentservice.service;
 
 import com.aliexpress.commondtos.OrderResponse;
+import com.aliexpress.commonmodels.Message;
+import com.aliexpress.commonmodels.commands.CommandEnum;
 import com.aliexpress.paymentservice.dto.ChargeRequest;
 import com.aliexpress.paymentservice.dto.PayoutRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
@@ -16,12 +19,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class PaymentService {
     Logger logger = LoggerFactory.getLogger(PaymentService.class);
+    private final ObjectMapper objectMapper = new ObjectMapper();
     @Value("${STRIPE_SECRET_KEY}")
     private String secretKey;
     @Value("${rabbitmq.exchangePayToInv.name}")
@@ -96,13 +102,12 @@ public class PaymentService {
         return payout;
     }
 
-
-    @RabbitListener(queues = {"${rabbitmq.jsonQueueInvToPay.name}"})
     public void consumeOrder(OrderResponse orderResponse) throws JsonProcessingException, StripeException {
         logger.info(String.format("Received Json message => %s", orderResponse.toString()));
         try {
-            ChargeRequest chargeRequest = new ChargeRequest();
-            chargeRequest.setAmount(orderResponse.getTotal_price()+orderResponse.getShipping());
+            ChargeRequest chargeRequest = ChargeRequest.builder()
+                    .amount(orderResponse.getTotal_price()+orderResponse.getShipping())
+                    .build();
             chargeNewCard(chargeRequest);
         }
         catch (Exception e){
@@ -122,8 +127,27 @@ public class PaymentService {
         logger.info("Payment successful!");
     }
 
+
     public void orderRollback(OrderResponse orderResponse, String exchangeName, String jsonRoutingKey) {
         logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
-        rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, orderResponse);
+        try {
+            logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
+            String json = objectMapper.writeValueAsString(orderResponse);
+
+            HashMap<String, Object> dataMap = new HashMap<>();
+            dataMap.put("OrderResponse", json);
+            Message message = Message.builder()
+                    .messageId(UUID.randomUUID().toString())
+                    .routingKey(jsonRoutingKey)
+                    .messageDate(new Date())
+                    .command(CommandEnum.IncrementInventoryCommand)
+                    .source("payment")
+                    .dataMap(dataMap)
+                    .exchange(exchangeName)
+                    .build();
+            rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, message);
+        } catch (Exception e) {
+            logger.info("Error " + e.getMessage());
+        }
     }
 }

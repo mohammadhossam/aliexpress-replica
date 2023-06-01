@@ -19,6 +19,7 @@
         <module>discoveryserver</module>
         <module>authentication-service</module>
         <module>common-dtos</module>
+        <module>common-models</module>
     </modules>
 
     <properties>
