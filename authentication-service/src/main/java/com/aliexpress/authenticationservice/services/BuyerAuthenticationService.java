@@ -6,11 +6,9 @@ import com.aliexpress.authenticationservice.models.Buyer;
 import com.aliexpress.authenticationservice.models.Role;
 import com.aliexpress.authenticationservice.repositories.BuyerRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -47,9 +45,9 @@ public class BuyerAuthenticationService {
                 buyer.getRole().name());
         if (!success) throw new RuntimeException("Failed to register buyer");
         var jwtToken = jwtService.generateToken(buyer);
-
-        String email = buyer.getEmail();
-        String tokenKey = "buyer_token:" + email;
+        buyer = repository.findBuyerByEmail(buyer.getEmail()).orElseThrow();
+        String id = String.valueOf(buyer.getId());
+        String tokenKey = "buyer_token:" + id;
         redisTemplate.opsForValue().set(tokenKey, jwtToken);
 
         return BuyerAuthenticationResponse.builder()
@@ -58,18 +56,20 @@ public class BuyerAuthenticationService {
     }
 
     public BuyerAuthenticationResponse authenticateBuyer(BuyerAuthenticationRequest buyerAuthenticationRequest) {
+
+        var buyer = repository.findBuyerByEmail(buyerAuthenticationRequest.getEmail())
+                .orElseThrow();
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        buyerAuthenticationRequest.getEmail(),
+                        buyer.getId(),
                         buyerAuthenticationRequest.getPassword()
                 )
         );
-        var buyer = repository.findBuyerByEmail(buyerAuthenticationRequest.getEmail())
-                .orElseThrow();
-        String email = buyer.getEmail();
-        String tokenKey = "buyer_token:" + email;
 
-        if (redisTemplate.hasKey(tokenKey)) {
+        String id = String.valueOf(buyer.getId());
+        String tokenKey = "buyer_token:" + id;
+
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(tokenKey))) {
             String jwtToken = redisTemplate.opsForValue().get(tokenKey);
             return BuyerAuthenticationResponse.builder()
                     .token(jwtToken)
@@ -86,9 +86,9 @@ public class BuyerAuthenticationService {
 
     public BuyerLogoutResponse logoutBuyer(String authorizationHeader) {
         String token = authorizationHeader.substring(7);
-        String email = jwtService.extractUsername(token);
-        String tokenKey = "buyer_token:" + email;
-        boolean success = redisTemplate.delete(tokenKey);
+        String id = jwtService.extractUserId(token);
+        String tokenKey = "buyer_token:" + id;
+        boolean success = Boolean.TRUE.equals(redisTemplate.delete(tokenKey));
         return BuyerLogoutResponse.builder()
                 .message(success ? "Logout success" : "User doesn't exist or not logged in")
                 .build();

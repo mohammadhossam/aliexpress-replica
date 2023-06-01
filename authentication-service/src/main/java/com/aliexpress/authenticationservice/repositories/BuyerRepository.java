@@ -24,4 +24,7 @@ public interface BuyerRepository extends JpaRepository<Buyer, Long> {
 
     @Query(value = "CALL public.find_buyer_by_email(:email, null, null, null, null, null, null, null, null, null)", nativeQuery = true)
     Optional<Buyer> findBuyerByEmail(@Param("email") String email);
+    @Query(value = "CALL public.find_buyer_by_id(:id, null, null, null, null, null, null, null, null, null)", nativeQuery = true)
+    Optional<Buyer> findBuyerById(@Param("id") int id);
+
 }
