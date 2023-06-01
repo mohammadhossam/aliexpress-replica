@@ -45,125 +45,6 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE PROCEDURE create_product(
-    IN p_merchant_id INTEGER,
-    IN p_name VARCHAR(100),
-    IN p_description VARCHAR(500),
-    IN p_price DECIMAL(10, 2),
-    IN p_category VARCHAR(50),
-    IN p_amount INTEGER
-)
-    LANGUAGE plpgsql
-AS
-$$
-BEGIN
-    INSERT INTO Product (merchant_id, name, description, price, category, amount)
-    VALUES (p_merchant_id, p_name, p_description, p_price, p_category, p_amount);
-END;
-$$;
-
-CREATE OR REPLACE PROCEDURE delete_product(
-    IN p_product_id INTEGER
-)
-    LANGUAGE plpgsql
-AS
-$$
-BEGIN
-    -- Delete product with specified id
-    DELETE FROM Product WHERE id = p_product_id;
-END;
-$$;
-
-CREATE OR REPLACE PROCEDURE decrement_product_stock(
-    IN p_product_id INTEGER,
-    IN p_quantity INTEGER
-)
-    LANGUAGE plpgsql
-AS
-$$
-DECLARE
-    v_stock INTEGER;
-BEGIN
-    BEGIN
-        -- Start a serializable transaction
-        START TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-
-        -- Check if there is enough stock available
-        SELECT amount INTO STRICT v_stock FROM Product WHERE id = p_product_id;
-        IF v_stock < p_quantity THEN
-            RAISE EXCEPTION 'Not enough stock available';
-        END IF;
-
-        -- Decrement the stock
-        UPDATE Product SET amount = amount - p_quantity WHERE id = p_product_id;
-
-        -- Commit the transaction
-        COMMIT;
-    EXCEPTION
-        WHEN OTHERS THEN
-            -- Rollback the transaction if there is an exception
-            ROLLBACK;
-            RAISE;
-    END;
-END;
-$$;
-
-CREATE OR REPLACE PROCEDURE update_product(
-    IN p_product_id INTEGER,
-    IN p_name VARCHAR(100),
-    IN p_description VARCHAR(500),
-    IN p_price DECIMAL(10, 2),
-    IN p_category VARCHAR(50),
-    IN p_amount INTEGER
-)
-    LANGUAGE plpgsql
-AS
-$$
-BEGIN
-    BEGIN
-        -- Start a transaction
-        START TRANSACTION;
-
-        -- Update the product data
-        UPDATE Product
-        SET name        = p_name,
-            description = p_description,
-            price       = p_price,
-            category    = p_category,
-            amount      = p_amount
-        WHERE id = p_product_id;
-
-        -- Commit the transaction
-        COMMIT;
-    EXCEPTION
-        WHEN OTHERS THEN
-            -- Rollback the transaction if there is an exception
-            ROLLBACK;
-            RAISE;
-    END;
-END;
-$$;
-
-CREATE OR REPLACE PROCEDURE get_product_data(
-    IN p_product_id INTEGER,
-    OUT p_name VARCHAR(100),
-    OUT p_description VARCHAR(500),
-    OUT p_price DECIMAL(10, 2),
-    OUT p_category VARCHAR(50),
-    OUT p_amount INTEGER,
-    OUT p_merchant_id INTEGER
-)
-    LANGUAGE plpgsql
-AS
-$$
-BEGIN
-    SELECT name, description, price, category, amount, merchant_id
-    INTO p_name, p_description, p_price, p_category, p_amount, p_merchant_id
-    FROM Product
-    WHERE id = p_product_id;
-END;
-$$;
-
 CREATE OR REPLACE PROCEDURE edit_buyer_profile(
     OUT success BOOLEAN,
     OUT reason VARCHAR(200),
@@ -205,7 +86,6 @@ EXCEPTION
         reason := SQLERRM;
 END;
 $$;
-
 
 CREATE OR REPLACE PROCEDURE edit_merchant_profile(
     OUT success BOOLEAN,
@@ -251,3 +131,106 @@ EXCEPTION
 END;
 $$;
 
+CREATE OR REPLACE PROCEDURE create_product(
+    IN p_id VARCHAR(50),
+    IN p_quantity INTEGER
+)
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    INSERT INTO Inventory (id, quantity)
+    VALUES (p_id, p_quantity);
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE delete_product(
+    IN p_product_id VARCHAR(50)
+)
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    -- Delete product with specified id
+    DELETE FROM Inventory WHERE id = p_product_id;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE update_product(
+    IN p_product_id VARCHAR(50),
+    IN p_quantity INTEGER
+)
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+        -- Update the product data
+        UPDATE Inventory
+        SET quantity= p_quantity
+        WHERE id = p_product_id;
+
+        -- Commit the transaction
+    EXCEPTION
+        WHEN OTHERS THEN
+            -- Rollback the transaction if there is an exception
+            RAISE;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE get_product_data(
+    IN p_product_id VARCHAR(50),
+    OUT p_quantity INTEGER
+)
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    SELECT quantity
+    INTO p_quantity
+    FROM Inventory
+    WHERE id = p_product_id;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE increment_products(ids text[], amount integer[]) AS
+$$
+DECLARE
+  i INTEGER;
+  v_stock INTEGER;
+BEGIN
+  FOR i IN array_lower(ids, 1)..array_upper(ids, 1) LOOP
+    BEGIN
+        SELECT quantity INTO STRICT v_stock FROM Inventory WHERE id = ids[i];
+        UPDATE Inventory SET quantity = quantity + amount[i] WHERE id = ids[i];
+    EXCEPTION
+        WHEN OTHERS THEN
+            -- Rollback the transaction if there is an exception
+            RAISE;
+    END;
+  END LOOP;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE PROCEDURE decrement_products(ids text[], amount integer[]) AS
+$$
+DECLARE
+  i INTEGER;
+  v_stock INTEGER;
+BEGIN
+  FOR i IN array_lower(ids, 1)..array_upper(ids, 1) LOOP
+    BEGIN
+        SELECT quantity INTO STRICT v_stock FROM Inventory WHERE id = ids[i];
+        IF v_stock < amount[i] THEN
+            RAISE EXCEPTION 'Not enough stock available';
+        END IF;
+        UPDATE Inventory SET quantity = quantity - amount[i] WHERE id = ids[i];
+    EXCEPTION
+        WHEN OTHERS THEN
+            -- Rollback the transaction if there is an exception
+            RAISE;
+    END;
+  END LOOP;
+END;
+$$
+LANGUAGE plpgsql;
