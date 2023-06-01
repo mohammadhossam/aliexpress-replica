@@ -7,9 +7,11 @@ import com.aliexpress.paymentservice.service.PaymentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component("PayToMerchantCommand")
 public class PayToMerchantCommand implements Command {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final PaymentService paymentService;

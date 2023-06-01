@@ -4,8 +4,10 @@ import com.aliexpress.commonmodels.Message;
 import com.aliexpress.commonmodels.commands.Command;
 import com.aliexpress.inventoryservice.services.InventoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
+@Component("DeleteInventoryCommand")
 public class DeleteInventoryCommand implements Command {
     private final InventoryService inventoryService;
     @Override

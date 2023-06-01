@@ -5,8 +5,10 @@ import com.aliexpress.commonmodels.commands.Command;
 import com.aliexpress.inventoryservice.dto.InventoryRequest;
 import com.aliexpress.inventoryservice.services.InventoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
+@Component("CreateInventoryCommand")
 public class CreateInventoryCommand implements Command {
     private final InventoryService inventoryService;
     @Override

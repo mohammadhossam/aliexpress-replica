@@ -7,9 +7,11 @@ import com.aliexpress.inventoryservice.services.InventoryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @AllArgsConstructor
+@Component("IncrementInventoryCommand")
 public class IncrementInventoryCommand implements Command {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final InventoryService inventoryService;
