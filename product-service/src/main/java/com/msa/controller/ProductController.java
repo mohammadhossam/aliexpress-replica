@@ -3,6 +3,7 @@ package com.msa.controller;
 import com.msa.dto.CreateProductRequest;
 import com.msa.dto.ProductResponse;
 import com.msa.dto.UpdateProductRequest;
+import com.msa.messagequeue.ProductServicePublisher;
 import com.msa.service.FileService;
 import com.msa.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class ProductController {
 
     private final ProductService productService;
     private final FileService fileService;
+    private final ProductServicePublisher productServicePublisher;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -68,5 +70,12 @@ public class ProductController {
             return ResponseEntity.ok(productResponse);
 
         return ResponseEntity.notFound().build();
+    }
+
+    // TODO: remove when done testing
+    @GetMapping("/test-mq/{message}")
+    public String testMq(@PathVariable String message) {
+        productServicePublisher.send(message);
+        return "Message sent";
     }
 }
