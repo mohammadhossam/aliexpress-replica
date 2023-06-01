@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,18 +24,16 @@ import java.util.*;
 @Slf4j
 public class InventoryService {
     private final ObjectMapper objectMapper = new ObjectMapper();
-
     private final InventoryRepository inventoryRepository;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
     @Value("${rabbitmq.exchangeInv.name}")
     private String exchangeNameInv;
     @Value("${rabbitmq.jsonBindingInvToPay.routingKey}")
     private String jsonRoutingKeyInvToPay;
     @Value("${rabbitmq.jsonBindingInvToOrd.routingKey}")
     private String jsonRoutingKeyInvToOrd;
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
-    private static final Logger logger = LoggerFactory.getLogger(InventoryService.class);
-
 
     public Inventory createProduct(InventoryRequest request) {
         String id= request.getId();
@@ -69,7 +65,6 @@ public class InventoryService {
         return inventoryRepository.findById(id).get();
     }
 
-    @SneakyThrows
     public Inventory incrementStock(String id, InventoryRequest request) {
         log.info("Increment stock");
         inventoryRepository.incrementStock(id, request.getQuantity());
@@ -77,13 +72,13 @@ public class InventoryService {
     }
 
     public void decrementProducts(String[] ids, int[] amount) {
-        log.info("decrement products");
+        log.info("Decrement products");
         log.info(ids.toString());
         inventoryRepository.decrementProducts(ids, amount);
     }
 
     public void incrementProducts(String[] ids, int[] amount) {
-        log.info("increment products");
+        log.info("Increment products");
         log.info(ids.toString());
         inventoryRepository.incrementProducts(ids, amount);
     }
@@ -99,71 +94,61 @@ public class InventoryService {
         return itemsDTO.stream().mapToInt(item -> item.getQuantity()).toArray();
     }
 
-//    @RabbitListener(queues = {"${rabbitmq.jsonQueueOrdToInv.name}"})
     public void consumeOrder(OrderResponse orderResponse) {
-        logger.info(String.format("Received Json message => %s", orderResponse.toString()));
+        log.info(String.format("Received JSON message from OrderService => %s", orderResponse.toString()));
         try {
             decrementProducts(mapItemsDTOToIDs(orderResponse.getItems()),
                     mapItemsDTOToAmounts(orderResponse.getItems()));
-            logger.info("Stock update successful!");
+            log.info("Stock decremented successfully!");
         } catch (Exception e) {
-            sendJsonMessage(orderResponse, exchangeNameInv, jsonRoutingKeyInvToOrd);
+            Message message= mapOrderResponseToMessage(orderResponse,CommandEnum.DeleteOrderCommand,jsonRoutingKeyInvToOrd);
+            sendJsonMessage(message, exchangeNameInv, jsonRoutingKeyInvToOrd);
             return;
         }
-        logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
-        String json = null;
-        try {
-            json = objectMapper.writeValueAsString(orderResponse);
-            HashMap<String, Object> dataMap = new HashMap<>();
-            dataMap.put("OrderResponse", json);
-            Message message = Message.builder()
-                    .messageId(UUID.randomUUID().toString())
-                    .routingKey(jsonRoutingKeyInvToPay)
-                    .messageDate(new Date())
-                    .command(CommandEnum.PayToMerchantCommand)
-                    .source("inventory")
-                    .dataMap(dataMap)
-                    .exchange(exchangeNameInv)
-                    .build();
-            sendJsonMessage(message, exchangeNameInv, jsonRoutingKeyInvToPay);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
+        Message message = mapOrderResponseToMessage(orderResponse,CommandEnum.PayToMerchantCommand,jsonRoutingKeyInvToPay);
+        sendJsonMessage(message, exchangeNameInv, jsonRoutingKeyInvToPay);
+        log.info(String.format("Sent JSON message to PaymentService => %s", message.toString()));
     }
-
 
     public void sendJsonMessage(Message message, String exchangeName, String jsonRoutingKey) {
-        logger.info(String.format("Sent JSON message => %s", message.toString()));
-        rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, message);
-    }
-    public void sendJsonMessage(OrderResponse orderResponse, String exchangeName, String jsonRoutingKey) {
-//        logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
-//        rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, orderResponse);
-        try {
-            logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
-            String json = objectMapper.writeValueAsString(orderResponse);
-
-            HashMap<String, Object> dataMap = new HashMap<>();
-            dataMap.put("OrderResponse", json);
-            Message message = Message.builder()
-                    .messageId(UUID.randomUUID().toString())
-                    .routingKey(jsonRoutingKey)
-                    .messageDate(new Date())
-                    .command(CommandEnum.DeleteOrderCommand)
-                    .source("inventory")
-                    .dataMap(dataMap)
-                    .exchange(exchangeName)
-                    .build();
+        if(message!=null)
             rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, message);
-        } catch (Exception e) {
-            logger.info("Error " + e.getMessage());
-        }
     }
+
+    public Message mapOrderResponseToMessage(OrderResponse orderResponse, CommandEnum command, String routingKey){
+        String json=null;
+        try{
+            json = objectMapper.writeValueAsString(orderResponse);
+        }
+        catch(Exception e){
+            log.info("Failed converting order response to JSON");
+            return null;
+        }
+        HashMap<String, Object> dataMap = new HashMap<>();
+        dataMap.put("OrderResponse", json);
+        Message message = Message.builder()
+                .messageId(UUID.randomUUID().toString())
+                .routingKey(routingKey)
+                .messageDate(new Date())
+                .command(command)
+                .source("inventory")
+                .dataMap(dataMap)
+                .exchange(exchangeNameInv)
+                .build();
+        return message;
+    }
+
 
     public void rollbackOrder(OrderResponse orderResponse) {
-        incrementProducts(mapItemsDTOToIDs(orderResponse.getItems()),
-                mapItemsDTOToAmounts(orderResponse.getItems()));
-        sendJsonMessage(orderResponse, exchangeNameInv, jsonRoutingKeyInvToOrd);
+        log.info(String.format("Received JSON message from PaymentService => %s", orderResponse.toString()));
+        try{
+            incrementProducts(mapItemsDTOToIDs(orderResponse.getItems()),
+                    mapItemsDTOToAmounts(orderResponse.getItems()));
+            log.info("Stock incremented successfully!");
+        }catch (Exception e ){
+            log.info("Failed incrementing stock in rollback: "+e.getMessage());
+        }
+        Message message =  mapOrderResponseToMessage(orderResponse,CommandEnum.DeleteOrderCommand,jsonRoutingKeyInvToOrd);
+        sendJsonMessage(message, exchangeNameInv, jsonRoutingKeyInvToOrd);
     }
 }

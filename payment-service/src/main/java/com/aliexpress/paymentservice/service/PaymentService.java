@@ -11,22 +11,19 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
 import jakarta.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class PaymentService {
-    Logger logger = LoggerFactory.getLogger(PaymentService.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
     @Value("${STRIPE_SECRET_KEY}")
     private String secretKey;
@@ -68,8 +65,7 @@ public class PaymentService {
         chargeParams.put("amount", (int) (chargeRequest.getAmount() * 100));
         chargeParams.put("currency", "USD");
         chargeParams.put("source", token.getId());
-        Charge charge = Charge.create(chargeParams);
-        return charge;
+        return Charge.create(chargeParams);
     }
 
     public Charge chargeCustomerCard(String customerId, int amount) throws StripeException {
@@ -79,18 +75,15 @@ public class PaymentService {
         chargeParams.put("currency", "USD");
         chargeParams.put("customer", customerId);
         chargeParams.put("source", sourceCard);
-        Charge charge = Charge.create(chargeParams);
-        return charge;
+        return Charge.create(chargeParams);
     }
 
     public Refund refund(String chargeId) throws StripeException {
         Map<String, Object> params = new HashMap<>();
         params.put("charge", chargeId);
-        Refund refund = Refund.create(params);
-        return refund;
+        return Refund.create(params);
     }
 
-    // todo: add valid test bank account
     public Payout payout(PayoutRequest payoutRequest) throws StripeException {
         // get our stripe account
         Map<String, Object> payoutParams = new HashMap<>();
@@ -98,12 +91,11 @@ public class PaymentService {
         payoutParams.put("currency", "USD");
         payoutParams.put("destination", payoutRequest.getDestinationCustomerId());
         payoutParams.put("description", "Test Payout");
-        Payout payout = Payout.create(payoutParams);
-        return payout;
+        return Payout.create(payoutParams);
     }
 
     public void consumeOrder(OrderResponse orderResponse) throws JsonProcessingException, StripeException {
-        logger.info(String.format("Received Json message => %s", orderResponse.toString()));
+        log.info(String.format("Received JSON message from InventoryService => %s", orderResponse.toString()));
         try {
             ChargeRequest chargeRequest = ChargeRequest.builder()
                     .amount(orderResponse.getTotal_price()+orderResponse.getShipping())
@@ -111,27 +103,16 @@ public class PaymentService {
             chargeNewCard(chargeRequest);
         }
         catch (Exception e){
-            logger.info("Payment Exception "+e.getMessage());
-            orderRollback(orderResponse, exchangeNamePayToInv, jsonRoutingKeyPayToInv);
+            log.info("Payment Exception "+e.getMessage());
+            rollbackOrder(orderResponse, exchangeNamePayToInv, jsonRoutingKeyPayToInv);
             return;
         }
-//        todo - payout??
-//        try{
-//            //payout
-//        }
-//        catch (Exception e){
-//            //refund
-//            orderRollback(orderResponse, exchangeNamePayToInv, jsonRoutingKeyPayToInv);
-//            return;
-//        }
-        logger.info("Payment successful!");
+        log.info("Payment successful!");
     }
 
 
-    public void orderRollback(OrderResponse orderResponse, String exchangeName, String jsonRoutingKey) {
-        logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
+    public void rollbackOrder(OrderResponse orderResponse, String exchangeName, String jsonRoutingKey) {
         try {
-            logger.info(String.format("Sent JSON message => %s", orderResponse.toString()));
             String json = objectMapper.writeValueAsString(orderResponse);
 
             HashMap<String, Object> dataMap = new HashMap<>();
@@ -146,8 +127,9 @@ public class PaymentService {
                     .exchange(exchangeName)
                     .build();
             rabbitTemplate.convertAndSend(exchangeName, jsonRoutingKey, message);
+            log.info(String.format("Sent JSON message to InventoryService => %s", orderResponse.toString()));
         } catch (Exception e) {
-            logger.info("Error " + e.getMessage());
+            log.info("Error: " + e.getMessage());
         }
     }
 }

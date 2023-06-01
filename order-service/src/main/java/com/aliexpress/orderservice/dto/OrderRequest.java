@@ -2,7 +2,6 @@ package com.aliexpress.orderservice.dto;
 
 import com.aliexpress.commondtos.ItemDTO;
 import lombok.*;
-
 import java.util.List;
 
 @Data

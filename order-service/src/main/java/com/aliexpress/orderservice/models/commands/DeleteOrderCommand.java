@@ -6,13 +6,12 @@ import com.aliexpress.commonmodels.commands.Command;
 import com.aliexpress.orderservice.services.OrderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 public class DeleteOrderCommand implements Command {
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final Logger logger = LoggerFactory.getLogger(DeleteOrderCommand.class);
     private final OrderService orderService;
 
     @Override
@@ -21,7 +20,7 @@ public class DeleteOrderCommand implements Command {
             OrderResponse orderResponse = objectMapper.readValue((String) message.getDataMap().get("OrderResponse"), OrderResponse.class);
             orderService.deleteOrder(orderResponse.getId());
         } catch (Exception e) {
-            logger.info("Error" + e.getMessage());
+            log.info("Error executing DeleteOrderCommand: " + e.getMessage());
         }
     }
 }
