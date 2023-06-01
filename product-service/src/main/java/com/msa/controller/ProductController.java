@@ -71,11 +71,4 @@ public class ProductController {
 
         return ResponseEntity.notFound().build();
     }
-
-    // TODO: remove when done testing
-    @GetMapping("/test-mq/{message}")
-    public String testMq(@PathVariable String message) {
-        productServicePublisher.send(message);
-        return "Message sent";
-    }
 }
