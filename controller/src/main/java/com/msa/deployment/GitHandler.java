@@ -36,16 +36,30 @@ public class GitHandler {
     }
 
 
-    public void checkoutToBranch() throws GitAPIException {
-        CheckoutCommand checkoutCommand = git.checkout().setName(branchName);
-        checkoutCommand.call();
-        System.out.printf("Checked out to %s branch%n", branchName);
+    public void checkoutToBranch() {
+        for (int i = 0; i < 3; i++) {
+            try {
+                CheckoutCommand checkoutCommand = git.checkout().setName(branchName);
+                checkoutCommand.call();
+                System.out.printf("Checked out to %s branch%n", branchName);
+                return;
+            } catch (GitAPIException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    public void pull() throws GitAPIException {
-        PullCommand pullCmd = git.pull().setCredentialsProvider(credentialsProvider);
-        pullCmd.call();
-        System.out.printf("Pulled remote%n");
+    public void pull() {
+        for (int i = 0; i < 3; i++) {
+            try {
+                PullCommand pullCmd = git.pull().setCredentialsProvider(credentialsProvider);
+                pullCmd.call();
+                System.out.printf("Pulled remote%n");
+                return;
+            } catch (GitAPIException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

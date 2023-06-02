@@ -1,5 +1,6 @@
 package com.msa.services;
 
+import com.msa.deployment.Deployer;
 import com.msa.models.Machine;
 import com.msa.models.RunningInstance;
 import lombok.AllArgsConstructor;
@@ -9,11 +10,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @Component
 public class HealthChecker {
 
-
+    private final Deployer deployer;
     private final NodeMatcher nodeMatcher;
 
     @Value("${health-checker.cpu-threshold-percentage}")
@@ -23,14 +25,15 @@ public class HealthChecker {
     private String memoryThresholdPercentage;
 
     @Autowired
-    public HealthChecker(NodeMatcher nodeMatcher) {
+    public HealthChecker(Deployer deployer, NodeMatcher nodeMatcher) {
         this.nodeMatcher = nodeMatcher;
+        this.deployer = deployer;
     }
 
 
-    public void checkServiceHealth (Hashtable<String, String> metricResults, RunningInstance runningInstance) {
+    public void checkServiceHealth(Hashtable<String, String> metricResults, RunningInstance runningInstance) {
         System.out.println(metricResults);
-        for (Map.Entry<String, String> metricResult: metricResults.entrySet()) {
+        for (Map.Entry<String, String> metricResult : metricResults.entrySet()) {
             // check that the service is up
             switch (metricResult.getKey()) {
                 case "status" -> {
@@ -45,6 +48,12 @@ public class HealthChecker {
                         System.out.println("Memory usage is above threshold");
                         Machine availableMachine = nodeMatcher.findNode(runningInstance.getServiceType());
                         System.out.println("Migrate service to " + availableMachine.getIp());
+                        try {
+                            deployer.deployService(availableMachine, runningInstance.getServiceType());
+                        }
+                        catch (Exception e){
+                            System.out.println(e);
+                        }
                     }
                 }
                 case "cpu" -> {
@@ -53,6 +62,12 @@ public class HealthChecker {
                         System.out.println("CPU usage is above threshold");
                         Machine availableMachine = nodeMatcher.findNode(runningInstance.getServiceType());
                         System.out.println("Migrate service to " + availableMachine.getIp());
+                        try {
+                            deployer.deployService(availableMachine, runningInstance.getServiceType());
+                        }
+                        catch (Exception e){
+                            System.out.println(e);
+                        }
                     }
                 }
             }

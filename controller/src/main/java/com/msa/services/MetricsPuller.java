@@ -39,7 +39,7 @@ public class MetricsPuller {
         WebClient.Builder builder = WebClient.builder();
         builder.uriBuilderFactory(customUriBuilderFactory());
         webClient = builder.build();
-
+        
         queries = new Hashtable<>();
 
         // pull the metrics from the metric.txt file
