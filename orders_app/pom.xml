@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>mongodbDemo</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+
     <name>mongodbDemo</name>
     <description>mongodbDemo</description>
     <properties>

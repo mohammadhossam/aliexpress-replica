@@ -8,10 +8,10 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>authentication-service</artifactId>
-    <name>authentication-service</name>
-    <description>authentication-service</description>
+    <artifactId>merchant-authentication-service</artifactId>
 
+    <name>merchant-authentication-service</name>
+    <description>merchant-authentication-service</description>
     <properties>
         <java.version>17</java.version>
     </properties>
