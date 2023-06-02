@@ -22,19 +22,14 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Procedure for registering a new buyer
-CREATE OR REPLACE PROCEDURE register_merchant(IN first_name varchar(50), IN last_name varchar(50),
-                                              IN email varchar(100), IN tax_number varchar(20),
-                                              IN phone_number varchar(20), IN birthdate date, IN address varchar(200),
-                                              IN password varchar(60), OUT result boolean)
-AS
+create procedure register_merchant(IN first_name character varying, IN last_name character varying, IN tax_number character varying, IN email character varying, IN phone_number character varying, IN birthdate date, IN address character varying, IN password character varying, IN role character varying, OUT result boolean)
+    language plpgsql
+as
 $$
-DECLARE
-    new_id integer;
 BEGIN
-    -- Insert the new buyer into the Merchant table
-    INSERT INTO Merchant(first_name, last_name, email, password, tax_number, phone_number, birthdate, address)
-    VALUES (first_name, last_name, email, password, tax_number, phone_number, birthdate, address);
-
+    -- Insert the new buyer into the Buyer table
+    INSERT INTO merchant(first_name, last_name, tax_number , email, password, phone_number, birthdate, address, role)
+    VALUES (first_name, last_name, tax_number, email, password, phone_number, birthdate, address, role);
     result := true;
 EXCEPTION
     -- If there is an error, set the result to false and rollback the transaction
@@ -258,5 +253,31 @@ begin
     into id, first_name, last_name, email, password, phone_number, birthdate, address, role
     from buyer
     where buyer.email = search_email;
+end
+$$;
+
+create procedure find_merchant_by_email(IN search_email character varying, OUT id integer, OUT first_name character varying, OUT last_name character varying, OUT email character varying, OUT password character varying, OUT phone_number character varying, OUT tax_number character varying, OUT birthdate character varying, OUT address character varying, OUT role character varying)
+    language plpgsql
+as
+$$
+    #variable_conflict use_variable
+begin
+    select merchant.id, merchant.first_name, merchant.last_name, merchant.email, merchant.password, merchant.phone_number, merchant.tax_number, merchant.birthdate, merchant.address, merchant.role
+    into id, first_name, last_name, email, password, phone_number, tax_number, birthdate, address, role
+    from merchant
+    where merchant.email = search_email;
+end
+$$;
+
+create procedure find_merchant_by_id(IN search_id integer, OUT id integer, OUT first_name character varying, OUT last_name character varying, OUT email character varying, OUT password character varying, OUT phone_number character varying, OUT tax_number character varying, OUT birthdate character varying, OUT address character varying, OUT role character varying)
+    language plpgsql
+as
+$$
+    #variable_conflict use_variable
+begin
+    select merchant.id, merchant.first_name, merchant.last_name, merchant.email, merchant.password, merchant.phone_number, merchant.tax_number, merchant.birthdate, merchant.address, merchant.role
+    into id, first_name, last_name, email, password, phone_number, tax_number, birthdate, address, role
+    from merchant
+    where merchant.id = search_id;
 end
 $$;
