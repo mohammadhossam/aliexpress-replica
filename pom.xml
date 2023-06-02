@@ -17,7 +17,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>discoveryserver</module>
-        <module>authentication-service</module>
+        <module>buyer-authentication-service</module>
+        <module>merchant-authentication-service</module>
         <module>users-service</module>
         <module>inventory-service</module>
         <module>orders_app</module>
