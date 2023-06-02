@@ -1,10 +1,10 @@
 package com.msa.service;
 
+import com.aliexpress.commonmodels.Message;
+import com.aliexpress.commonmodels.commands.CommandEnum;
 import com.msa.dto.CreateProductRequest;
 import com.msa.dto.ProductResponse;
 import com.msa.dto.UpdateProductRequest;
-import com.msa.model.Command;
-import com.msa.model.Message;
 import com.msa.model.Product;
 import com.msa.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class ProductService {
         Map<String, Object> payload = new HashMap<>();
         payload.put("productId", createdProduct.getId());
         payload.put("quantity", createProductRequest.getInitialStock());
-        Message message = new Message(Command.CreateInventoryCommand, payload, "ProductService", "product-service",
+        Message message = new Message(CommandEnum.CreateInventoryCommand, payload, "ProductService", "product-service",
                 "product");
         messageService.publishMessage(message);
 
@@ -105,7 +105,7 @@ public class ProductService {
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("productId", deletedProdcut.getId());
-        Message message = new Message(Command.CreateInventoryCommand, payload, "ProductService", "product-service",
+        Message message = new Message(CommandEnum.DeleteInventoryCommand, payload, "ProductService", "product-service",
                 "product");
         messageService.publishMessage(message);
 

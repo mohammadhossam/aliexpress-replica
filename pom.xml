@@ -22,7 +22,7 @@
         <module>common-models</module>
         <module>users-service</module>
         <module>inventory-service</module>
-        <module>orders_app</module>
+        <module>order-service</module>
         <module>payment-service</module>
         <module>product-service</module>
     </modules>
