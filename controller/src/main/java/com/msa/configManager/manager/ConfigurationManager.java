@@ -1,20 +1,23 @@
-package com.msa.controller;
+package com.msa.configManager.manager;
 
-import com.msa.mongo.MongoDB;
-import com.msa.properties.ApplicationPropertiesParser;
-import com.msa.properties.Property;
-import com.msa.properties.ServiceProperties;
+import com.msa.configManager.mongo.MongoDB;
+import com.msa.configManager.properties.ApplicationPropertiesParser;
+import com.msa.configManager.properties.Property;
+import com.msa.configManager.properties.ServiceProperties;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
-public class ConfigController {
+public class ConfigurationManager {
 
     private ApplicationPropertiesParser applicationPropertiesParser;
     private final File[] propertiesFiles;
     private MongoDB mongoDB;
-    public ConfigController(String dir) {
+    public ConfigurationManager(String dir) {
         File f = new File("./");
         File folder = new File(dir);
         propertiesFiles = folder.listFiles();
@@ -48,6 +51,13 @@ public class ConfigController {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void addSingleConfig(String serviceName, String configs) throws ParseException {
+        applicationPropertiesParser = new ApplicationPropertiesParser();
+        applicationPropertiesParser.setProperties(configs);
+        ArrayList<Property> properties = applicationPropertiesParser.parse();
+        mongoDB.insert(new ServiceProperties(serviceName, properties));
     }
 
     public ArrayList<ServiceProperties> getProperties() {
