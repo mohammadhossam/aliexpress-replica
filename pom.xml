@@ -22,6 +22,7 @@
         <module>inventory-service</module>
         <module>orders_app</module>
         <module>payment-service</module>
+        <module>deployment-handler</module>
     </modules>
 
     <properties>
