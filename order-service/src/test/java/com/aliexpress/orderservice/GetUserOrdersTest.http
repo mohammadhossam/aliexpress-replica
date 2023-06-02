@@ -1,3 +1,4 @@
-GET http://localhost:8081/api/orders/user_orders/ImanPORTS38259 HTTP/1.1
+GET http://localhost:8081/api/orders/user_orders/batee4 HTTP/1.1
+Authorization: Bearer gegoImanNadouda
 content-type: application/json
 

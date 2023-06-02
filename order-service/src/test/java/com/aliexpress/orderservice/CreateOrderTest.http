@@ -1,5 +1,6 @@
 POST http://localhost:8081/api/orders HTTP/1.1
 content-type: application/json
+Authorization: Bearer gegoImanNadouda
 
 {
   "user_id":"batee4",

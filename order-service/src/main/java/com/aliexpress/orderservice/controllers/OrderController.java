@@ -4,6 +4,7 @@ import com.aliexpress.orderservice.dto.OrderRequest;
 import com.aliexpress.orderservice.models.*;
 import com.aliexpress.orderservice.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,13 +26,13 @@ public class OrderController {
     }
 
     @GetMapping("/user_orders/{user_id}")
-    public List<Order> getUserOrders(@PathVariable String user_id) {
-        return order_service.getUserOrders(user_id);
+    public ResponseEntity<?> getUserOrders(@PathVariable String user_id, @RequestHeader(value = "Authorization") String authHeader) {
+         return order_service.getUserOrders(user_id, authHeader);
     }
 
     @PostMapping
-    public void createOrder(@RequestBody OrderRequest order) {
-        order_service.createOrder(order);
+    public ResponseEntity<?> createOrder(@RequestBody OrderRequest order, @RequestHeader(value = "Authorization") String authHeader) {
+        return order_service.createOrder(order, authHeader);
     }
 
     @PutMapping("/{id}")
