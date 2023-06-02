@@ -73,7 +73,8 @@ build/
 *.h2.db
 
 # Secret
-/deployment-handler/src/main/resources/application.properties
+controller/src/main/resources/application.properties
+
 
 # For development
 
