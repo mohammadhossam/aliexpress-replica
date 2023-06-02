@@ -6,6 +6,7 @@ import com.msa.searchservice.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ public class SearchController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
+    @Cacheable(value = "productSearchCache", key = "#productRequest")
     public List<ProductResponse> searchProduct(@RequestBody HashMap<String, Object> productRequest)
     {
         double minPrice = 0, maxPrice = Double.MAX_VALUE;
