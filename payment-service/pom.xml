@@ -20,12 +20,21 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.msa</groupId> <!-- Replace with the appropriate groupId -->
+            <artifactId>common-dtos</artifactId> <!-- Replace with the artifactId of the common module -->
+            <version>1.0-SNAPSHOT</version> <!-- Replace with the version of the common module -->
+        </dependency>
+        <dependency>
+            <groupId>com.msa</groupId> <!-- Replace with the appropriate groupId -->
+            <artifactId>common-models</artifactId> <!-- Replace with the artifactId of the common module -->
+            <version>1.0-SNAPSHOT</version> <!-- Replace with the version of the common module -->
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

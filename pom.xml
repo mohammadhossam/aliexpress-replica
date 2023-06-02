@@ -17,13 +17,16 @@
     <packaging>pom</packaging>
     <modules>
         <module>discovery-server</module>
+        <module>common-dtos</module>
+        <module>common-models</module>
         <module>buyer-authentication-service</module>
         <module>merchant-authentication-service</module>
         <module>users-service</module>
         <module>inventory-service</module>
-        <module>orders_app</module>
+        <module>order-service</module>
         <module>payment-service</module>
         <module>controller</module>
+        <module>product-service</module>
     </modules>
 
     <properties>
