@@ -1,0 +1,6 @@
+POST http://localhost:8080/api/payment/payouts HTTP/1.1
+content-type: application/json
+
+{
+  "amount":200
+}

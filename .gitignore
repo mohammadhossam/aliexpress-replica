@@ -1,3 +1,4 @@
+orders_app/HELP.md
 # Compiled class file
 *.class
 
@@ -57,7 +58,10 @@ build/
 
 ### VS Code ###
 .vscode/
+!/orders_app/src/main/resources/application.properties
 
+### app.properties ###
+./payment-service/src/main/resources/application.properties
 
 # Ignore IntelliJ IDEA project files
 .idea/
@@ -67,5 +71,4 @@ build/
 *.db
 *.sqlite
 *.h2.db
-
 

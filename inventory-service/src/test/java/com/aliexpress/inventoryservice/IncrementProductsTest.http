@@ -1,0 +1,7 @@
+POST http://localhost:8080/api/inventory/increment-products HTTP/1.1
+content-type: application/json
+
+{
+  "ids": ["id7","id8"],
+  "amount": [1,1]
+}

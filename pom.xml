@@ -16,8 +16,12 @@
     <version>1.0.0</version>
     <packaging>pom</packaging>
     <modules>
-        <module>discoveryserver</module>
+        <module>discovery-server</module>
         <module>authentication-service</module>
+        <module>users-service</module>
+        <module>inventory-service</module>
+        <module>orders_app</module>
+        <module>payment-service</module>
         <module>controller</module>
     </modules>
 
@@ -37,6 +41,15 @@
                 <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-amqp</artifactId>
+            </dependency>
+            <dependency>
+                <groupId>com.rabbitmq</groupId>
+                <artifactId>amqp-client</artifactId>
+                <version>5.17.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
