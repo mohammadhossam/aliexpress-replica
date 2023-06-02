@@ -14,6 +14,8 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
@@ -22,7 +24,7 @@ import java.util.*;
 public class OrderService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
-    private RedisTemplate<String, List<Order>> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
     private OrderRepository repo;
@@ -45,7 +47,7 @@ public class OrderService {
         List<Order> res;
         if (redisTemplate.hasKey(user_id)) {
             log.info(String.format("Get user: %s orders from cache",user_id));
-            res = redisTemplate.opsForValue().get(user_id);
+            res = (List<Order>) redisTemplate.opsForValue().get(user_id);
         } else {
             log.info(String.format("Get user: %s orders from DB",user_id));
             res = repo.findOrdersByUser_id(user_id);
@@ -54,9 +56,22 @@ public class OrderService {
         return res;
     }
 
-    public void createOrder(OrderRequest orderRequest) {
-        Order order=mapToOrder(orderRequest, UUID.randomUUID().toString());
-        sendJsonMessage(mapToOrderResponse(order));
+    public ResponseEntity<String> createOrder(OrderRequest orderRequest, String authHeader) {
+        if (authHeader != null) {
+            String token = authHeader.substring(7);
+            String tokenKey = "buyer_token:" + orderRequest.getUser_id();
+            String tokenFromRedis = (String) redisTemplate.opsForValue().get(tokenKey);
+            if (tokenFromRedis == null || !tokenFromRedis.equals(token)) {
+                System.out.println("Token is not valid");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not authenticated!");
+            } else {
+                Order order=mapToOrder(orderRequest, UUID.randomUUID().toString());
+                sendJsonMessage(mapToOrderResponse(order));
+                return ResponseEntity.ok("Order created successfully");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).body("No authorization header exists!");
+        }
     }
 
     public void updateOrder(String orderId, OrderRequest orderRequest) {

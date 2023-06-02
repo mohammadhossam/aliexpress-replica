@@ -30,8 +30,8 @@ public class OrderController {
     }
 
     @PostMapping
-    public void createOrder(@RequestBody OrderRequest order) {
-        order_service.createOrder(order);
+    public void createOrder(@RequestBody OrderRequest order, @RequestHeader(value = "Authorization") String authHeader) {
+        order_service.createOrder(order, authHeader);
     }
 
     @PutMapping("/{id}")
