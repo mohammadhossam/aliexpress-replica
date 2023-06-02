@@ -17,6 +17,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
 
 @Slf4j
@@ -24,8 +25,9 @@ import java.util.*;
 public class OrderService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-
+    RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    RedisTemplate<String, String> redisTemplate2;
     @Autowired
     private OrderRepository repo;
     @Value("${rabbitmq.exchangeOrdToInv.name}")
@@ -43,34 +45,32 @@ public class OrderService {
         return repo.findById(id).get();
     }
 
-    public List<Order> getUserOrders(String user_id) {
-        List<Order> res;
-        if (redisTemplate.hasKey(user_id)) {
-            log.info(String.format("Get user: %s orders from cache",user_id));
-            res = (List<Order>) redisTemplate.opsForValue().get(user_id);
+    public ResponseEntity<?> getUserOrders(String user_id, String authHeader) {
+        ResponseEntity<?> entity= isAuth(user_id, authHeader);
+        if (entity.getBody().equals("Token is valid")) {
+            List<Order> res;
+            if (redisTemplate.hasKey(user_id)) {
+                log.info(String.format("Get user: %s orders from cache", user_id));
+                res = (List<Order>) redisTemplate.opsForValue().get(user_id);
+            } else {
+                log.info(String.format("Get user: %s orders from DB", user_id));
+                res = repo.findOrdersByUser_id(user_id);
+                redisTemplate.opsForValue().set(user_id, res);
+            }
+            return new ResponseEntity<>(res, HttpStatus.OK);
         } else {
-            log.info(String.format("Get user: %s orders from DB",user_id));
-            res = repo.findOrdersByUser_id(user_id);
-            redisTemplate.opsForValue().set(user_id, res);
+            return entity;
         }
-        return res;
     }
 
-    public ResponseEntity<String> createOrder(OrderRequest orderRequest, String authHeader) {
-        if (authHeader != null) {
-            String token = authHeader.substring(7);
-            String tokenKey = "buyer_token:" + orderRequest.getUser_id();
-            String tokenFromRedis = (String) redisTemplate.opsForValue().get(tokenKey);
-            if (tokenFromRedis == null || !tokenFromRedis.equals(token)) {
-                System.out.println("Token is not valid");
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not authenticated!");
-            } else {
-                Order order=mapToOrder(orderRequest, UUID.randomUUID().toString());
-                sendJsonMessage(mapToOrderResponse(order));
-                return ResponseEntity.ok("Order created successfully");
-            }
+    public ResponseEntity<?> createOrder(OrderRequest orderRequest, String authHeader) {
+        ResponseEntity<?> entity= isAuth(orderRequest.getUser_id(), authHeader);
+        if (entity.getBody().equals("Token is valid")) {
+            Order order = mapToOrder(orderRequest, UUID.randomUUID().toString());
+            sendJsonMessage(mapToOrderResponse(order));
+            return new ResponseEntity<>(order,HttpStatus.CREATED);
         } else {
-            return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).body("No authorization header exists!");
+            return entity;
         }
     }
 
@@ -80,7 +80,7 @@ public class OrderService {
 
     public void deleteOrder(String id) {
         Order order = repo.deleteOrderById(id);
-        if(order!=null)
+        if (order != null)
             removeFromCache(order.getUser_id());
     }
 
@@ -170,6 +170,22 @@ public class OrderService {
             log.info(String.format("Sent JSON message to inventory => %s", order.toString()));
         } catch (Exception e) {
             log.info("Error: " + e.getMessage());
+        }
+    }
+    public ResponseEntity<?> isAuth(String userId, String authHeader) {
+        if (authHeader != null) {
+            String token = authHeader.substring(7);
+            String tokenKey = "buyer_token:" + userId;
+            String tokenFromRedis = redisTemplate2.opsForValue().get(tokenKey);
+            log.info("token from redis " + tokenFromRedis);
+            if (tokenFromRedis == null || !tokenFromRedis.equals(token)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not authenticated!");
+            } else {
+                return ResponseEntity.ok("Token is valid");
+            }
+        } else {
+            log.info("No authorization header exists!");
+            return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION).body("No authorization header exists!");
         }
     }
 }
