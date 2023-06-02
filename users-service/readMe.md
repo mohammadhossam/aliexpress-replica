@@ -74,6 +74,10 @@ Make sure you have the following prerequisites installed on your machine:
    
 ## API Reference
 
+## Buyer 
+
+### Update Buyer
+
 Updates the buyer profile.
 
 - **URL**
@@ -116,9 +120,8 @@ Updates the buyer profile.
     - **Status Code:** 406 (Non-Authoritative Information)
         - **Response Body:** "No authorization header exists!"
 
-# AliExpress Replica
 
-## Merchant Service
+## Merchant 
 
 ### Update Merchant
 
