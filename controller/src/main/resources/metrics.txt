@@ -1,0 +1,3 @@
+status#up{job="%s",instance="%s:%s"}#1,2,3
+cpu#avg_over_time(system_cpu_usage{job="%s",instance="%s:%s"} [%s])#1,2,3,4
+memory#avg_over_time(app_memory_used_bytes{job="%s",instance="%s:%s"} [%s])#1,2,3,4
