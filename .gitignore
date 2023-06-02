@@ -72,3 +72,10 @@ build/
 *.sqlite
 *.h2.db
 
+# Secret
+controller/src/main/resources/application.properties
+
+
+# For development
+
+/deployment-handler/src/main/java/Main.java

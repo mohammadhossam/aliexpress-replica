@@ -1,0 +1,14 @@
+
+system_cpu_usage{job=\"%s\",instance=\"%s\"}#1,2
+app_memory_used_bytes{job=\"%s\",instance=\"%s\"}#1,2
+rate(http_server_requests_seconds_count{job=\"%s\",instance=\"%s\"} [%s])#1,2,3
+
+rate(app_memory_used_bytes{job="%s",instance="%s:%s"} [20s])#1,2,3
+
+
+
+
+        Machine m = machinesRepo.save(new Machine(1L, "host.docker.internal", 8));
+        machinesRepo.save(new Machine(2L, "1.1.1.1", 16));
+
+        runningInstanceRepo.save(new RunningInstance(1L, m, "3001", ServiceType.dummy));

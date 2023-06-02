@@ -6,10 +6,10 @@
     <parent>
         <groupId>com.msa</groupId>
         <artifactId>aliexpress-replica</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
 
-    <artifactId>discoveryserver</artifactId>
+    <artifactId>discovery-server</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
