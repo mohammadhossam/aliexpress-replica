@@ -20,6 +20,8 @@
         <module>authentication-service</module>
         <module>common-dtos</module>
         <module>common-models</module>
+        <module>buyer-authentication-service</module>
+        <module>merchant-authentication-service</module>
         <module>users-service</module>
         <module>inventory-service</module>
         <module>order-service</module>
