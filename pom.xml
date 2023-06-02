@@ -27,6 +27,7 @@
         <module>payment-service</module>
         <module>controller</module>
         <module>product-service</module>
+        <module>search-service</module>
     </modules>
 
     <properties>
