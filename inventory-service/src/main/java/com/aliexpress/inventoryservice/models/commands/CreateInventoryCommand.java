@@ -14,7 +14,7 @@ public class CreateInventoryCommand implements Command {
     @Override
     public void execute(Message message) {
         String productId= (String) message.getDataMap().get("productId");
-        int productQuantity= (int) message.getDataMap().get("productQuantity");
+        int productQuantity= (int) message.getDataMap().get("quantity");
         InventoryRequest request= InventoryRequest.builder()
                 .id(productId)
                 .quantity(productQuantity)
