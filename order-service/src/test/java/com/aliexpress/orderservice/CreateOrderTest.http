@@ -1,0 +1,9 @@
+POST http://localhost:8081/api/orders HTTP/1.1
+content-type: application/json
+Authorization: Bearer gegoImanNadouda
+
+{
+  "user_id":"batee4",
+  "items": [{"id":"id7","quantity":1,"price":500, "merchantId": 1},{"id":"id8","quantity":1,"price":2000, "merchantId": 2}]
+}
+

@@ -1,0 +1,3 @@
+DELETE http://localhost:8081/api/orders/ff22a85a-202e-457f-960f-1d5644d7bfda HTTP/1.1
+content-type: application/json
+
