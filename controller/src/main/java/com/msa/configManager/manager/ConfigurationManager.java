@@ -4,6 +4,7 @@ import com.msa.configManager.mongo.MongoDB;
 import com.msa.configManager.properties.ApplicationPropertiesParser;
 import com.msa.configManager.properties.Property;
 import com.msa.configManager.properties.ServiceProperties;
+import org.apache.commons.text.StringSubstitutor;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,6 +12,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ConfigurationManager {
 
@@ -61,7 +65,31 @@ public class ConfigurationManager {
     }
 
     public ArrayList<ServiceProperties> getProperties() {
-        return mongoDB.getAllConfigs();
+        ArrayList<ServiceProperties> properties = mongoDB.getAllConfigs();
+        ArrayList<ServiceProperties> newProps = new ArrayList<>();
+
+        for (ServiceProperties prop: properties) {
+            ArrayList<Property> newProperties = new ArrayList<>();
+            for (Property p: prop.getProperties()) {
+                String val = p.getVal();
+                Pattern pattern = Pattern.compile("\\{([^}]+)\\}");
+                Matcher matcher = pattern.matcher(val);
+                ArrayList<String> placeHoldersToBeQueried = new ArrayList<>();
+                while (matcher.find()) {
+                    String match = matcher.group(1);
+                    placeHoldersToBeQueried.add(match);
+                }
+                HashMap<String, String> newValMap = getResourceVal(placeHoldersToBeQueried);
+                String newVal = StringSubstitutor.replace(p.getVal(), newValMap);
+                newProperties.add(new Property(p.getPropertyName(), newVal));
+            }
+            newProps.add(new ServiceProperties(prop.getServiceName(), newProperties));
+        }
+        return newProps;
+    }
+
+    public HashMap<String, String> getResourceVal(ArrayList<String> placeHoldersToBeQueried) {
+        return new HashMap<>();
     }
 
     public static void main(String[] args) throws ParseException {

@@ -15,7 +15,15 @@ public class Property {
         return "--" + propertyName + "=" + getVal();
     }
 
-    private String getVal() {
+    public String getVal() {
         return val;
+    }
+
+    public String getPropertyName() {
+        return propertyName;
+}
+
+    public void setVal(String val) {
+        this.val = val;
     }
 }

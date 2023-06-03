@@ -11,6 +11,13 @@ public class ServiceProperties {
         this.properties = properties;
     }
 
+    public ArrayList<Property> getProperties() {
+        return properties;
+}
+    public String getServiceName() {
+        return applicationName;
+    }
+
     @Override
     public String toString() {
         return "ServiceProperties{" +
