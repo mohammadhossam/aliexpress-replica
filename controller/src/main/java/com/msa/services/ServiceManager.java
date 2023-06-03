@@ -25,10 +25,12 @@ public class ServiceManager {
     private final RunningInstanceRepo runningInstanceRepo;
     private final MachinesRepo machinesRepo;
 
-    @Scheduled(fixedRateString = "${health-checker.period}")
+    @Scheduled(fixedDelayString = "${health-checker.period}")
     public void collectServicesMetrics() throws UnsupportedEncodingException {
+        System.out.println("STARTING HEALTH CHECK");
         // pull the running instances to be checked
         List<RunningInstance> allRunningInstances = runningInstancesRepo.findAll();
+
         ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         System.out.println("Checking " + allRunningInstances.size() + " instances");
@@ -46,6 +48,10 @@ public class ServiceManager {
             });
 
         }
+
+        allRunningInstances = runningInstancesRepo.findAll();
+        healthChecker.checkAllServicesAvailability(allRunningInstances);
+
     }
 
 

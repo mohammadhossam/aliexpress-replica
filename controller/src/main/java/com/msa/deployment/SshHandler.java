@@ -76,7 +76,7 @@ public class SshHandler {
 
         System.out.printf("Running command to get random port : %s on %s@%s%n", command, serverUsername, serverIp);
 
-        int randomPort = Integer.parseInt(output);
+        int randomPort = Integer.parseInt(output.replaceAll("[^\\d.]", ""));
 
         System.out.printf("Random port %d  on %s@%s%n", randomPort, serverUsername, serverIp);
         return randomPort;
