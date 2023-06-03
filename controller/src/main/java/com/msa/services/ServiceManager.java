@@ -30,29 +30,28 @@ public class ServiceManager {
     public void collectServicesMetrics() throws UnsupportedEncodingException {
         System.out.println("STARTING HEALTH CHECK");
         // pull the running instances to be checked
-//        List<RunningInstance> allRunningInstances = runningInstancesRepo.findAll();
-//        System.out.println(allRunningInstances);
-//        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        List<RunningInstance> allRunningInstances = runningInstancesRepo.findAll();
+        System.out.println(allRunningInstances);
+        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-//        System.out.println("Checking " + allRunningInstances.size() + " instances");
-//        for (RunningInstance runningInstance: allRunningInstances){
-//            prometheusHandler.informPrometheus(runningInstance);
-//            // create new thread to handle each instance
-//            executorService.execute(() -> {
-//                Hashtable<String, String> metricResponses = null;
-//                try {
-//                    metricResponses = metricsPuller.pullInstanceMetrics(runningInstance);
-//                } catch (UnsupportedEncodingException e) {
-//                    throw new RuntimeException(e);
-//                }
-//
-//                healthChecker.checkServiceHealth(metricResponses, runningInstance);
-//            });
+        System.out.println("Checking " + allRunningInstances.size() + " instances");
+        for (RunningInstance runningInstance: allRunningInstances){
+            // create new thread to handle each instance
+            executorService.execute(() -> {
+                Hashtable<String, String> metricResponses = null;
+                try {
+                    metricResponses = metricsPuller.pullInstanceMetrics(runningInstance);
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
 
-        //}
+                healthChecker.checkServiceHealth(metricResponses, runningInstance);
+            });
 
-//        allRunningInstances = runningInstancesRepo.findAll();
-//        healthChecker.checkAllServicesAvailability(allRunningInstances);
+        }
+
+        allRunningInstances = runningInstancesRepo.findAll();
+        healthChecker.checkAllServicesAvailability(allRunningInstances);
 
     }
 

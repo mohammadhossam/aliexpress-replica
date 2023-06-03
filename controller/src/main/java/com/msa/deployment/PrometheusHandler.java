@@ -1,57 +1,79 @@
 package com.msa.deployment;
 
-import com.msa.models.Query;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.msa.models.prometheus.PrometheusYml;
 import com.msa.models.RunningInstance;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.msa.models.prometheus.ScrapeConfig;
+import com.msa.models.prometheus.StaticConfig;
+import com.msa.services.MetricsPuller;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.yaml.snakeyaml.Yaml;
 
-import java.io.FileInputStream;
+
 import java.io.*;
-import java.util.*;
+import java.net.URLEncoder;
+import java.nio.file.Paths;
+import java.util.Vector;
+
 @Component
 public class PrometheusHandler {
 
-    private final ResourceLoader resourceLoader;
+    @Value("${prometheusYamlFile}")
+    private String prometheusYamlPath;
 
-    @Autowired
-    public PrometheusHandler(ResourceLoader resourceLoader) {
-        this.resourceLoader = resourceLoader;
+    private final MetricsPuller metricsPuller;
+
+    public PrometheusHandler(MetricsPuller metricsPuller) {
+        this.metricsPuller = metricsPuller;
     }
-
 
     public void informPrometheus(RunningInstance runningInstance) {
         try {
 
             // open the prometheus .yml file
-            Resource resource = resourceLoader.getResource("classpath:prometheus.yml");
-            InputStream file = resource.getInputStream();
 
-            // Load the YAML file
-            Yaml yaml = new Yaml();
-            Map yamlData = yaml.load(file);
+            File file = new File(prometheusYamlPath);
 
-            // Get the list of current targets
-            List<Map<String, Object>> jobs = ((List<Map<String, Object>>)yamlData.get("scrape_configs"));
-            System.out.println(jobs);
-//            for (Map<String, Object> job: jobs) {
-//
-//            }
-//
-//            // Add the new target
-//            List<String> newTarget = new ArrayList<>();
-//            newTarget.add(targetName);
-//            newTarget.add(targetURL);
-//            targets.add(newTarget);
-//
-//            // Save the updated YAML file
-//            FileWriter writer = new FileWriter(filePath);
-//            yaml.dump(yamlData, writer);
-//            writer.close();
+            // Create ObjectMapper with YAMLFactory
+            ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER));
+
+            // Read YAML file and parse into Config object
+            PrometheusYml config = objectMapper.readValue(file, PrometheusYml.class);
+
+            System.out.println(runningInstance);
+            System.out.println(config);
+
+            // Add new target to yaml
+            ScrapeConfig runningInstanceConfig = null;
+            for (ScrapeConfig scrapeConfig : config.getScrape_configs()) {
+                if (scrapeConfig.getJob_name().equals(runningInstance.getServiceType().getDirectory())) {
+                    runningInstanceConfig = scrapeConfig;
+                    break;
+                }
+            }
+            if (runningInstanceConfig == null) {
+                runningInstanceConfig = new ScrapeConfig();
+                runningInstanceConfig.setJob_name(runningInstance.getServiceType().getDirectory());
+                runningInstanceConfig.setMetrics_path("/actuator/prometheus");
+                runningInstanceConfig.setStatic_configs(new Vector<>());
+                runningInstanceConfig.getStatic_configs().add(new StaticConfig(new Vector<>()));
+
+                config.getScrape_configs().add(runningInstanceConfig);
+            }
+            if (runningInstanceConfig.getStatic_configs().isEmpty()) {
+                runningInstanceConfig.getStatic_configs().add(new StaticConfig());
+            }
+            StaticConfig staticConfig = runningInstanceConfig.getStatic_configs().get(0);
+            staticConfig.getTargets().add(runningInstance.getHost().getIp() + ":" + runningInstance.getPort());
+
+
+            objectMapper.writeValue(file, config);
+
+            metricsPuller.reloadYaml();
+
+            System.out.println(config);
 
             System.out.println("Target added successfully.");
         } catch (IOException e) {

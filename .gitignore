@@ -78,4 +78,4 @@ controller/src/main/resources/application.properties
 
 # For development
 
-/deployment-handler/src/main/java/Main.java
+/controller/src/main/resources/prometheus.yml
