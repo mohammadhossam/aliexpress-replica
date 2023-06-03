@@ -1,5 +1,6 @@
 package com.msa.services;
 
+import com.msa.deployment.PrometheusHandler;
 import com.msa.models.Machine;
 import com.msa.models.RunningInstance;
 import com.msa.models.ServiceType;
@@ -21,14 +22,16 @@ public class ServiceManager {
     private final MetricsPuller metricsPuller;
     private final HealthChecker healthChecker;
     private final RunningInstanceRepo runningInstancesRepo;
-
+    private final PrometheusHandler prometheusHandler;
     private final RunningInstanceRepo runningInstanceRepo;
     private final MachinesRepo machinesRepo;
 
-    @Scheduled(fixedRateString = "${health-checker.period}")
+    @Scheduled(fixedDelayString = "${health-checker.period}")
     public void collectServicesMetrics() throws UnsupportedEncodingException {
+        System.out.println("STARTING HEALTH CHECK");
         // pull the running instances to be checked
         List<RunningInstance> allRunningInstances = runningInstancesRepo.findAll();
+        System.out.println(allRunningInstances);
         ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         System.out.println("Checking " + allRunningInstances.size() + " instances");
@@ -46,6 +49,10 @@ public class ServiceManager {
             });
 
         }
+
+        allRunningInstances = runningInstancesRepo.findAll();
+        healthChecker.checkAllServicesAvailability(allRunningInstances);
+
     }
 
 

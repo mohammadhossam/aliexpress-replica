@@ -1,4 +1,4 @@
-//package com.msa.configManager.mongo;
+//package com.msa.configManager.storage;
 //
 //import com.google.gson.Gson;
 //import com.mongodb.client.*;
@@ -8,11 +8,11 @@
 //import java.util.ArrayList;
 //
 //
-//public class MongoDB {
+//public class ConfigurationStorage {
 //
 //    private MongoDatabase db;
 //
-//    public MongoDB()  {
+//    public ConfigurationStorage()  {
 //        String connectionString = "";
 //        MongoClient mongoClient = MongoClients.create(connectionString);
 //        db =  mongoClient.getDatabase("Service-Configs");
@@ -35,9 +35,4 @@
 //        }
 //        return configs;
 //    }
-//
-//    public static void main(String[] args) {
-//        new MongoDB();
-//    }
-//
 //}
