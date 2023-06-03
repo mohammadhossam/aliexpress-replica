@@ -36,7 +36,6 @@ public class PaymentController {
     public ResponseEntity<?> refundCharge(@RequestBody RefundRequest refundRequest) {
         try {
             String chargeId = refundRequest.getChargeId();
-
             Refund refund = payment_service.refund(chargeId);
             // Return a success response
             return ResponseEntity.ok(refund.getId());

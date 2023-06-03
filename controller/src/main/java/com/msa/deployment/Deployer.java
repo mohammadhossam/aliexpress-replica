@@ -1,8 +1,16 @@
 package com.msa.deployment;
 
+import com.msa.models.Machine;
+import com.msa.models.RunningInstance;
+import com.msa.models.ServiceType;
+import com.msa.repos.RunningInstanceRepo;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+
 @Component
+@AllArgsConstructor
 public class Deployer {
 
     // when it gets a command to deploy a service, it will do the following
@@ -13,8 +21,17 @@ public class Deployer {
     // 4. run the jar on the machine
     // 5. add the service to the database as a running service
 
-    public void deployService () {
+    private final DeploymentHandler deploymentHandler;
+    private final RunningInstanceRepo runningInstanceRepo;
 
+    public void deployService(Machine machine, ServiceType serviceType) throws IOException {
+
+        int port = deploymentHandler.runService(machine.getUsername(), machine.getIp(), serviceType.getDirectory());
+        RunningInstance recentDeployment = RunningInstance.builder().build();
+        recentDeployment.setHost(machine);
+        recentDeployment.setPort(Integer.toString(port));
+        recentDeployment.setServiceType(serviceType);
+        runningInstanceRepo.save(recentDeployment);
     }
 
 }

@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.aliexpress.usersservice</groupId>
     <artifactId>users-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+
     <name>users-service</name>
     <description>users-service</description>
     <properties>

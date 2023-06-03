@@ -27,7 +27,6 @@ public class ServiceManager {
 
     @Scheduled(fixedRateString = "${health-checker.period}")
     public void collectServicesMetrics() throws UnsupportedEncodingException {
-
         // pull the running instances to be checked
         List<RunningInstance> allRunningInstances = runningInstancesRepo.findAll();
         ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
