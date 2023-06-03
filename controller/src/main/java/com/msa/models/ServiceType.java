@@ -1,12 +1,15 @@
 package com.msa.models;
 
 public enum ServiceType {
-    discoverServer("discovery-server"),
-    authenticationService("authentication-service"),
-    ordersService("orders_app"),
-    usersService("users-service"),
-    paymentService("payment-service"),
-    inventoryService("inventory-service");
+    buyerAuthenticationService("buyer-authentication-service"),
+    //    inventoryService("inventory-service"),
+//    merchantAuthenticationService("merchant-authentication-service"),
+//    orderService("order-service"),
+//    paymentService("payment-service"),
+//    productService("product-service"),
+//    searchService("search-service"),
+//    usersService("users-service")
+    ;
     private final String directory;
 
     ServiceType(String directory) {
@@ -16,4 +19,9 @@ public enum ServiceType {
     public String getDirectory() {
         return directory;
     }
+
+    public String toString() {
+        return getDirectory();
+    }
+
 }

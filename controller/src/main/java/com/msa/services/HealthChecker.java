@@ -3,14 +3,16 @@ package com.msa.services;
 import com.msa.deployment.Deployer;
 import com.msa.models.Machine;
 import com.msa.models.RunningInstance;
-import lombok.AllArgsConstructor;
+import com.msa.models.ServiceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 @Component
 public class HealthChecker {
@@ -30,6 +32,15 @@ public class HealthChecker {
         this.deployer = deployer;
     }
 
+    private void deployServiceToMatchedMachine(ServiceType serviceType) {
+        Machine availableMachine = nodeMatcher.findNode(serviceType);
+        System.out.println("Migrate service to " + availableMachine.getIp());
+        try {
+            deployer.deployService(availableMachine, serviceType);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void checkServiceHealth(Hashtable<String, String> metricResults, RunningInstance runningInstance) {
         System.out.println(metricResults);
@@ -46,32 +57,34 @@ public class HealthChecker {
                     double usage = Double.parseDouble(metricResult.getValue()) / 10e9 / runningInstance.getHost().getMemory();
                     if (usage > Double.parseDouble(memoryThresholdPercentage)) {
                         System.out.println("Memory usage is above threshold");
-                        Machine availableMachine = nodeMatcher.findNode(runningInstance.getServiceType());
-                        System.out.println("Migrate service to " + availableMachine.getIp());
-                        try {
-                            deployer.deployService(availableMachine, runningInstance.getServiceType());
-                        }
-                        catch (Exception e){
-                            System.out.println(e);
-                        }
+                        deployServiceToMatchedMachine(runningInstance.getServiceType());
                     }
                 }
                 case "cpu" -> {
                     // check that the cpu usage is below the threshold
                     if (Double.parseDouble(metricResult.getValue()) > Double.parseDouble(cpuThresholdPercentage)) {
                         System.out.println("CPU usage is above threshold");
-                        Machine availableMachine = nodeMatcher.findNode(runningInstance.getServiceType());
-                        System.out.println("Migrate service to " + availableMachine.getIp());
-                        try {
-                            deployer.deployService(availableMachine, runningInstance.getServiceType());
-                        }
-                        catch (Exception e){
-                            System.out.println(e);
-                        }
+                        deployServiceToMatchedMachine(runningInstance.getServiceType());
                     }
                 }
             }
 
+        }
+    }
+
+
+    public void checkAllServicesAvailability(List<RunningInstance> runningInstances) {
+        HashSet<ServiceType> availableServices = new HashSet<>();
+
+        for (RunningInstance runningInstance : runningInstances) {
+            availableServices.add(runningInstance.getServiceType());
+        }
+
+        for (ServiceType serviceType : ServiceType.values()) {
+            if (!availableServices.contains(serviceType)) {
+                // deploy a service of that type
+                deployServiceToMatchedMachine(serviceType);
+            }
         }
     }
 }

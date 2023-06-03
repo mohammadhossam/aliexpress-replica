@@ -14,7 +14,7 @@ public class DeploymentHandler {
 
 
     public int runService(String hostUsername, String hostIp, String serviceName) throws IOException {
-        System.out.printf("Initializing run of service %s on %s@%s", serviceName, hostUsername, hostIp);
+        System.out.printf("Initializing run of service %s on %s@%s%n", serviceName, hostUsername, hostIp);
         gitHandler.checkoutToBranch();
         gitHandler.pull();
 

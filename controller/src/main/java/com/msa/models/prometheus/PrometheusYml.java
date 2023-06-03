@@ -1,0 +1,19 @@
+package com.msa.models.prometheus;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PrometheusYml {
+    private Global global;
+    private List<ScrapeConfig> scrape_configs;
+}
+
+

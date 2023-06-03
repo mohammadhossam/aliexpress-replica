@@ -6,15 +6,12 @@ import com.msa.models.Property;
 import com.msa.models.ServiceConfiguration;
 import com.msa.models.requests.DeploymentRequest;
 import com.msa.models.responses.DeploymentResponse;
-import com.msa.repos.RunningResourcesRepo;
 import com.msa.repos.ServiceConfigurationRepo;
 import com.msa.services.NodeMatcher;
 import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 @RestController
 @RequestMapping("/deployment")

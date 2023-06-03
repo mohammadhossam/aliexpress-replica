@@ -1,7 +1,6 @@
 package com.msa.models;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

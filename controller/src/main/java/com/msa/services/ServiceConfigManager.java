@@ -6,7 +6,6 @@ import com.msa.models.ServiceConfiguration;
 import com.msa.repos.RunningResourcesRepo;
 import com.msa.repos.ServiceConfigurationRepo;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
@@ -21,7 +20,7 @@ public class ServiceConfigManager {
 
     private static final String externalResourcePattern = "\\{([^}]+)\\}"; // "{users-service-cache.port}
 
-    public ServiceConfiguration getServiceConfiguration(String serviceName) throws ParseException {
+    public ServiceConfiguration getServiceConfiguration(String serviceName) {
         ServiceConfiguration serviceConfiguration = serviceConfigurationRepo.findByServiceName(serviceName);
         ArrayList<Property> newProperties = new ArrayList<>();
         ArrayList<Property> applicationProperties = serviceConfiguration.getApplicationProperties();
@@ -58,7 +57,7 @@ public class ServiceConfigManager {
         }
         return resourcesAttributes;
     }
-    private String addResourcesToPlaceholders(String val) throws ParseException {
+    private String addResourcesToPlaceholders(String val) {
         HashMap<String, String> resourcesAttributes = queryResourcesAttributes(getAllNeededResources(val));
         return StringSubstitutor.replace(val, resourcesAttributes);
     }
