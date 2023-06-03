@@ -4,6 +4,7 @@ import com.msa.dto.CreateProductRequest;
 import com.msa.dto.ProductResponse;
 import com.msa.dto.UpdateProductRequest;
 import com.msa.messagequeue.ProductServicePublisher;
+import com.msa.service.AuthService;
 import com.msa.service.FileService;
 import com.msa.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class ProductController {
 
     private final ProductService productService;
     private final FileService fileService;
-    private final ProductServicePublisher productServicePublisher;
+    private final AuthService authService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -41,7 +42,10 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductResponse> updateProduct(@PathVariable String id,
-            @RequestBody UpdateProductRequest updateProductRequest) {
+            @RequestBody UpdateProductRequest updateProductRequest, @RequestHeader("Authorization") String token) {
+        if (!authService.checkToken(token, updateProductRequest.getMerchantId()))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
         ProductResponse productResponse = productService.updateProduct(id, updateProductRequest);
 
         if (productResponse != null)
@@ -52,8 +56,12 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponse createProduct(@RequestBody CreateProductRequest createProductRequest) {
-        return productService.createProduct(createProductRequest);
+    public ResponseEntity<ProductResponse> createProduct(@RequestBody CreateProductRequest createProductRequest,
+            @RequestHeader("Authorization") String token) {
+        if (!authService.checkToken(token, createProductRequest.getMerchantId()))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        return ResponseEntity.ok(productService.createProduct(createProductRequest));
     }
 
     @PostMapping("/upload-image")
@@ -62,8 +70,12 @@ public class ProductController {
         return fileService.uploadImage(img);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ProductResponse> deleteProduct(@PathVariable String id) {
+    @DeleteMapping("/{merchantId}/{id}")
+    public ResponseEntity<ProductResponse> deleteProduct(@PathVariable String merchantId, @PathVariable String id,
+            @RequestHeader("Authorization") String token) {
+        if (!authService.checkToken(token, merchantId))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
         ProductResponse productResponse = productService.deleteProduct(id);
 
         if (productResponse != null)
