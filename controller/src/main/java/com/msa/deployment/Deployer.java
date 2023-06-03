@@ -23,15 +23,20 @@ public class Deployer {
 
     private final DeploymentHandler deploymentHandler;
     private final RunningInstanceRepo runningInstanceRepo;
+    private final PrometheusHandler prometheusHandler;
 
     public void deployService(Machine machine, ServiceType serviceType) throws IOException {
 
         int port = deploymentHandler.runService(machine.getUsername(), machine.getIp(), serviceType.getDirectory());
+        // add the service to the database as a running service
         RunningInstance recentDeployment = RunningInstance.builder().build();
         recentDeployment.setHost(machine);
         recentDeployment.setPort(Integer.toString(port));
         recentDeployment.setServiceType(serviceType);
         runningInstanceRepo.save(recentDeployment);
+
+        // inform prometheus about the new service
+        prometheusHandler.informPrometheus(recentDeployment);
     }
 
 }
