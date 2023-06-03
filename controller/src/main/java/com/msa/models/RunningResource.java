@@ -7,19 +7,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.HashMap;
 
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document("machines")
-public class Machine {
+@Document("running_resource")
+public class RunningResource {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
-    private String ip;
-    private int memory;
-    private String username;
+    private String resourceName;
+    private HashMap<String, String> attributes = new HashMap<>();
 }
