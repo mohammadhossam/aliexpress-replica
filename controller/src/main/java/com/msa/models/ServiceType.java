@@ -19,4 +19,9 @@ public enum ServiceType {
     public String getDirectory() {
         return directory;
     }
+
+    public String toString() {
+        return getDirectory();
+    }
+
 }

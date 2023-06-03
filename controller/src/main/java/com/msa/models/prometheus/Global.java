@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class Global {
     private String scrape_interval;
     private String evaluation_interval;
+    private String scrape_timeout;
 }

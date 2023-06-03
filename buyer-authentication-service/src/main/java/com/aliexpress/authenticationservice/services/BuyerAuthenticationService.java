@@ -44,10 +44,11 @@ public class BuyerAuthenticationService {
                 buyer.getPassword(),
                 buyer.getRole().name());
         if (!success) throw new RuntimeException("Failed to register buyer");
-        var jwtToken = jwtService.generateToken(buyer);
         buyer = repository.findBuyerByEmail(buyer.getEmail()).orElseThrow();
         String id = String.valueOf(buyer.getId());
+        System.out.println(id);
         String tokenKey = "buyer_token:" + id;
+        var jwtToken = jwtService.generateToken(buyer);
         redisTemplate.opsForValue().set(tokenKey, jwtToken);
 
         return BuyerAuthenticationResponse.builder()

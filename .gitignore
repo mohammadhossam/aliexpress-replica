@@ -79,3 +79,5 @@ controller/src/main/resources/application.properties
 # For development
 
 /controller/src/main/resources/prometheus.yml
+
+/series

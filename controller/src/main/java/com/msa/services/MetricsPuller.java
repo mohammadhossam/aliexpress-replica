@@ -73,7 +73,7 @@ public class MetricsPuller {
         Hashtable<String, String> results = new Hashtable<>();
 
         String[] params = new String[4];
-        params[0] = runningInstance.getServiceType().toString();
+        params[0] = runningInstance.getServiceType().getDirectory();
         params[1] = runningInstance.getHost().getIp();
         params[2] = runningInstance.getPort();
         params[3] = period;
@@ -91,12 +91,13 @@ public class MetricsPuller {
                     );
 
             String uriString = uriBuilder.build().toUriString();
-
+            System.out.println(uriString);
             MetricResponse metricResponse = webClient.get()
                     .uri(uriString)
                     .retrieve()
                     .bodyToMono(MetricResponse.class)
                     .block();
+            System.out.println(metricResponse);
 
             if (metricResponse != null &&
                     metricResponse.getData() != null &&
