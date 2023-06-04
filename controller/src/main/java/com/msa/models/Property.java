@@ -14,6 +14,6 @@ public class Property {
     private String val; // should contain placeholders for the values of external resources for example: {users-service-cache.port}
 
     public String toString() {
-        return "--" + propertyName + "=" + getVal();
+        return "--" + propertyName + "=" + val;
     }
 }

@@ -18,6 +18,6 @@ public class ServiceConfiguration {
     private ArrayList<Property> applicationProperties; // spring.data.redis.port: {redis.ip}
 
     public String toString() {
-        return String.join("\n", applicationProperties.toString());
+        return String.join(" ", applicationProperties.toString());
     }
 }
