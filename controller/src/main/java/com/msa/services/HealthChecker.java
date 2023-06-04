@@ -36,6 +36,10 @@ public class HealthChecker {
 
     private void deployServiceToMatchedMachine(ServiceType serviceType) {
         Machine availableMachine = nodeMatcher.findNode(serviceType);
+        if (availableMachine == null) {
+            System.out.printf("No available machines to deploy %s%n", serviceType.getDirectory());
+            return;
+        }
         System.out.println("Migrate service to " + availableMachine.getIp());
         try {
             deployer.deployService(availableMachine, serviceType);

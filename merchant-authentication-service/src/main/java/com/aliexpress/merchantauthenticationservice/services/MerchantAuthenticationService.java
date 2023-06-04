@@ -50,10 +50,10 @@ public class MerchantAuthenticationService {
                 merchant.getPassword(),
                 merchant.getRole().name());
         if (!success) throw new RuntimeException("Failed to register merchant");
-        var jwtToken = jwtService.generateToken(merchant);
         merchant = repository.findMerchantByEmail(merchant.getEmail()).orElseThrow();
         String id = String.valueOf(merchant.getId());
         String tokenKey = "merchant_token:" + id;
+        var jwtToken = jwtService.generateToken(merchant);
         redisTemplate.opsForValue().set(tokenKey, jwtToken);
 
         return MerchantAuthenticationResponse.builder()

@@ -28,6 +28,8 @@ public class SecurityConfiguration {
                 .authenticated()
                 .requestMatchers("/api/authentication/merchant/**")
                 .permitAll()
+                .requestMatchers("/actuator/prometheus")
+                .permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()

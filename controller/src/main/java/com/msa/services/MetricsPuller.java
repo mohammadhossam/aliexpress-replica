@@ -91,7 +91,6 @@ public class MetricsPuller {
                     );
 
             String uriString = uriBuilder.build().toUriString();
-            System.out.println(uriString);
             MetricResponse metricResponse = webClient.get()
                     .uri(uriString)
                     .retrieve()
@@ -122,7 +121,7 @@ public class MetricsPuller {
                 .path("/-/reload");
 
         String uriString = uriBuilder.build().toUriString();
-        webClient.post().uri(uriString);
+        webClient.post().uri(uriString).retrieve().bodyToMono(String.class).block();
 
     }
 

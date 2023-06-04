@@ -3,7 +3,7 @@ package com.msa.models;
 public enum ServiceType {
     buyerAuthenticationService("buyer-authentication-service"),
     //    inventoryService("inventory-service"),
-//    merchantAuthenticationService("merchant-authentication-service"),
+    merchantAuthenticationService("merchant-authentication-service"),
 //    orderService("order-service"),
 //    paymentService("payment-service"),
 //    productService("product-service"),
