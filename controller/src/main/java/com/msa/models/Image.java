@@ -1,6 +1,5 @@
 package com.msa.models;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,15 +9,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.HashMap;
 
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document("running_resource")
-public class RunningResource {
+@Document("images")
+public class Image {
     @Id
     private String id;
-    private String resourceName;
-    private HashMap<String, String> attributes = new HashMap<>();
+    private String imageName;
+    private String script;
+    private HashMap<String, String> placeholders = new HashMap<>();
 }
