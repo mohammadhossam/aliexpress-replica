@@ -13,9 +13,8 @@ import org.springframework.stereotype.Component;
 
 
 import java.io.*;
-import java.net.URLEncoder;
-import java.nio.file.Paths;
 import java.util.Vector;
+
 
 @Component
 public class PrometheusHandler {

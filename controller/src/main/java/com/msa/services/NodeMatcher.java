@@ -28,12 +28,12 @@ public class NodeMatcher {
         // get the list of all running services
         Iterable<RunningInstance> runningInstances = runningInstanceRepo.findAll();
         // create a hashtable that maps machine id to machine object
-        Hashtable<Long, Machine> machineHashtable = new Hashtable<>();
+        Hashtable<String, Machine> machineHashtable = new Hashtable<>();
         for (Machine machine : machines) {
             machineHashtable.put(machine.getId(), machine);
         }
         // create a hashtable that maps machine id to the number of services running on it
-        Hashtable<Long, Integer> machineServicesCount = new Hashtable<>();
+        Hashtable<String, Integer> machineServicesCount = new Hashtable<>();
         for (Machine machine : machines) {
             machineServicesCount.put(machine.getId(), 0);
         }
@@ -53,9 +53,9 @@ public class NodeMatcher {
         }
 
         // find the machine with the least number of services running on it
-        Long minMachineId = null;
+        String minMachineId = null;
         int minServicesCount = Integer.MAX_VALUE;
-        for (Long machineId : machineServicesCount.keySet()) {
+        for (String machineId : machineServicesCount.keySet()) {
             if (machineServicesCount.get(machineId) < minServicesCount) {
                 minServicesCount = machineServicesCount.get(machineId);
                 minMachineId = machineId;
