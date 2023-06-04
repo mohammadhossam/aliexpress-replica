@@ -10,13 +10,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import lombok.AllArgsConstructor;
 import org.apache.commons.text.StringSubstitutor;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class ServiceConfigManager {
-    private ServiceConfigurationRepo serviceConfigurationRepo;
-    private RunningResourcesRepo runningResourcesRepo;
+    private final ServiceConfigurationRepo serviceConfigurationRepo;
+    private final RunningResourcesRepo runningResourcesRepo;
 
     private static final String externalResourcePattern = "\\{([^}]+)\\}"; // "{users-service-cache.port}
 
